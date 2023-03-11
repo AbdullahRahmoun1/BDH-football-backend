@@ -22,6 +22,7 @@ Route::post('login',[userController::class,'login']);
 Route::post('signup',[userController::class,'signup']);
 Route::post('matchMaking',PartOneAutoMatchMaking::class);
 Route::post('excelInput',HandleExcelInput::class);
+Route::get('player/{id}',[playerController::class,'show']);
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
