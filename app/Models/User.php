@@ -17,6 +17,7 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
     const userNameMinLength=5,userNameMaxLength=30;
     const passwordMinLength=5,passwordMaxLength=20;
+    const PLAYER='player',GUEST='guest',ADMIN='admin';
     /**
      * The attributes that are mass assignable.
      *

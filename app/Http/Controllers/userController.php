@@ -38,8 +38,11 @@ class userController extends Controller
         return response([
             'message'=>'wrong password'
         ],401);
-        //TODO::determin if he is an admin or not
-        $tokenType=$user->player==null?'guest':'player';
+        $tokenType=$user->player==null?User::GUEST:User::PLAYER;
+        //TODO::determin if he is an admin or not in a better way
+        if($body['userName']=='alaa' && $body['password']=='12345'){
+            $tokenType=User::ADMIN;
+        }
         $token=$user->createToken('lsjfs',[$tokenType]);
         return response([
             'message'=>'success',
