@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Player extends Model
 {
@@ -15,6 +16,9 @@ class Player extends Model
         'position'
     ];
     const NORMAL=1,GOAL_KEEPER=2,CAPTAIN=3;
+    public function user(){
+        return $this->belongsTo(User::class);
+    }
     public function team(){
         return $this->belongsTo(Team::class);
     }
@@ -24,4 +28,5 @@ class Player extends Model
     public function yellowCards(){
         return $this->hasMany(YellowCard::class);
     }
+
 }

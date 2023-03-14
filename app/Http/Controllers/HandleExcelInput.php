@@ -13,6 +13,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Validation\Rules\File as RulesFile;
 use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
+use Symfony\Component\VarDumper\VarDumper;
 
 class HandleExcelInput extends Controller
 {
@@ -49,6 +50,7 @@ class HandleExcelInput extends Controller
         //iterate over all sheets (there will be one only)
         //then over all rows of a sheet
         foreach ($reader->getSheetIterator() as $sheet) {
+            if(count($errors)!=0)break;
             foreach ($sheet->getRowIterator() as $row) {
                 if($rowI!=1){
                     $cells=$row->getCells();
@@ -61,12 +63,19 @@ class HandleExcelInput extends Controller
                         //if the team is created successfully..then we can create the players and accounts
                         $teamId=$team->id;
                         $dbAccounts=self::extractAccountsInfo($cells,$accounts);
-                        self::insertOrDuplicateError(fn()=>
-                        User::insert($dbAccounts)
-                        ,'Account already exists. row = '.$rowI,$errors,true);
-                        self::insertOrDuplicateError(fn()=>
-                        Player::insert(self::extractPlayersInfo($cells,$teamId))
-                        ,'Player already exists. row = '.$rowI,$errors,true);
+                        $dbIds=array_map(fn($account)
+                        =>self::insertOrDuplicateError(fn()=>
+                            User::insertGetId($account)
+                            ,'Account already exists. row = '.$rowI,$errors,true)
+                        ,$dbAccounts);
+                        //accounts are created !!
+                        //now lets create the player records if no errors accourd yet..
+                            if(count($errors)==0){
+                                self::insertOrDuplicateError(fn()=>
+                                Player::insert(self::extractPlayersInfo($cells,$teamId,$dbIds))
+                                ,'Player already exists. row = '.$rowI,$errors,true);
+                            }
+                        
                     }
                     //now create the players recordes and create a password for them
                     }else {
@@ -80,7 +89,6 @@ class HandleExcelInput extends Controller
             }
         }
         $reader->close();
-        
         if(count($errors)==0){
             //no errors? => thank god.. commit the transaction
             DB::commit();
@@ -114,13 +122,14 @@ class HandleExcelInput extends Controller
             'name'=>$teamName,
         ];
     }
-    private function extractPlayersInfo($cells,$team_id){
+    private function extractPlayersInfo($cells,$team_id,$dbIds){
         $players=[];
         for($i=3 ;$i<count($cells);$i++){
             $players[]=[
                 'name'=>$cells[$i]->getValue(),
                 'position'=>$i==3?Player::CAPTAIN:($i==4?Player::GOAL_KEEPER:Player::NORMAL),
                 'team_id'=>$team_id,
+                'user_id'=>$dbIds[$i-3],
                 'created_at'=>Carbon::now(),
                 'updated_at'=>Carbon::now()
             ];

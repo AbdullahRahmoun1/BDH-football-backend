@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\userController;
 use App\Http\Controllers\playerController;
 use App\Http\Controllers\PartOneAutoMatchMaking;
+use Illuminate\Routing\RouteGroup;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 /*
@@ -18,16 +19,13 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::post('login',[userController::class,'login']);
 Route::post('signup',[userController::class,'signup']);
-Route::post('matchMaking',PartOneAutoMatchMaking::class);
-Route::post('excelInput',HandleExcelInput::class);
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-Route::middleware('auth:sanctum')
-->get('player/{id}',[playerController::class,'show']);
-Route::get('lsjfsd',function (){
-    
+Route::post('login',[userController::class,'login']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/logout',[userController::class,'logout']);
+    Route::get('player/{id}',[playerController::class,'show']);
+    //admin---------------------------
+    Route::post('excelInput',HandleExcelInput::class);
+    Route::post('matchMaking',PartOneAutoMatchMaking::class);
 });
 

@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Models\Player;
 use GuzzleHttp\Psr7\Request;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
@@ -45,6 +46,9 @@ class User extends Authenticatable
     protected $casts = [
         
     ];
+    public function player(){
+        return $this->hasOne(Player::class);
+    }
     protected function password() : Attribute {
         return new Attribute(
             set:fn($value)=>bcrypt($value)

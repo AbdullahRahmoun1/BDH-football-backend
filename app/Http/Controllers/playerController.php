@@ -14,7 +14,7 @@ class playerController extends Controller
             $user=$request->user();
             //must change to relation later
             // return $user->userName;
-            $player=Player::where('name',$user->userName)->First();
+            $player=$user->player;
             //end
             if($player==null){
                 return response([
@@ -23,6 +23,6 @@ class playerController extends Controller
             }
             return $player;
         }
-        
+        return Player::findOrFail($id);
     }
 }

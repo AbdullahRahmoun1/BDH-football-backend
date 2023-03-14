@@ -38,10 +38,17 @@ class userController extends Controller
         return response([
             'message'=>'wrong password'
         ],401);
-        $token=$user->createToken('lsjfs',['guest']);
+        //TODO::determin if he is an admin or not
+        $tokenType=$user->player==null?'guest':'player';
+        $token=$user->createToken('lsjfs',[$tokenType]);
         return response([
             'message'=>'success',
-            'token'=>$token->plainTextToken
+            'token'=>$token->plainTextToken,
+            'tokenType'=>$tokenType
         ]);
+    }
+    public function logout(Request $request){
+        $request->user()->currentAccessToken()->delete();
+        return ['message'=>'success'];
     }
 }
