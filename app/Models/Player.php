@@ -28,5 +28,15 @@ class Player extends Model
     public function yellowCards(){
         return $this->hasMany(YellowCard::class);
     }
+    public function position(){
+        $result='Attacker';
+        
+        if($this->position==self::CAPTAIN)
+        $result='Captain';
+
+        if($this->position==self::GOAL_KEEPER)
+        $result='Goalkeeper';
+        $this->position=$result;
+    }
 
 }

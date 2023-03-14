@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\userController;
 use App\Http\Controllers\playerController;
 use App\Http\Controllers\PartOneAutoMatchMaking;
+use App\Http\Controllers\PredictionController;
 use Illuminate\Routing\RouteGroup;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
@@ -24,8 +25,11 @@ Route::post('login',[userController::class,'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/logout',[userController::class,'logout']);
     Route::get('player/{id}',[playerController::class,'show']);
+    Route::post('/prediction',[PredictionController::class,'post']);
+    Route::get('topScorers',[playerController::class,'topScorers']);
     //admin---------------------------
     Route::post('excelInput',HandleExcelInput::class);
     Route::post('matchMaking',PartOneAutoMatchMaking::class);
+
 });
 
