@@ -44,4 +44,12 @@ class playerController extends Controller
         return $players;
 
     }
+    public function topPlayer(){
+        $players= Player::select(['id','name','score','team_id'])
+        ->orderByDesc('score')
+        ->with('team:id,name')
+        ->limit(15)->get();
+        $players->makeHidden('team_id');
+        return $players;
+    }
 }

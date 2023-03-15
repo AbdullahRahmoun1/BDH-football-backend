@@ -27,6 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('player/{id}',[playerController::class,'show']);
     Route::post('/prediction',[PredictionController::class,'post']);
     Route::get('topScorers',[playerController::class,'topScorers']);
+    Route::get('topPlayer',[playerController::class,'topPlayer']);
     //admin---------------------------
     Route::post('excelInput',HandleExcelInput::class);
     Route::post('matchMaking',PartOneAutoMatchMaking::class);
