@@ -54,4 +54,7 @@ class userController extends Controller
         $request->user()->currentAccessToken()->delete();
         return ['message'=>'success'];
     }
+    public function self(Request $request){
+        return $request->user();
+    }
 }

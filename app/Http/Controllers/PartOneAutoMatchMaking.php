@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Contest;
-use App\Models\Team;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use PSpell\Config;
+use App\Models\Team;
+use App\Models\Contest;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PartOneAutoMatchMaking extends Controller
 {
@@ -18,7 +19,6 @@ class PartOneAutoMatchMaking extends Controller
      */
     public function __invoke(Request $request)
     {
-        self::handleTheExcelFile();
         //get all grades
         $warnings=[];
         $counter=0;
@@ -36,13 +36,19 @@ class PartOneAutoMatchMaking extends Controller
                 $teamsCount=$teams->count();
                 switch($teamsCount){
                     case 5:
+                        DB::beginTransaction();
                         $contests=$this->fiveTeamsSchema($teams);
                         $counter+=count($contests);
                         Contest::insert($contests);
+                        DB::commit();
                         break;
                     case 6:
-                        break;
-                    
+                        DB::beginTransaction();
+                        $contests=$this->sixTeamsSchema($teams);
+                        $counter+=count($contests);
+                        Contest::insert($contests);
+                        DB::commit();
+                        break;         
                     default:
                     $warnings[]="Couldn't make the matches of ( Class $class Grade $grade ) because it has " 
                     .$teamsCount." teams in it";
@@ -53,10 +59,6 @@ class PartOneAutoMatchMaking extends Controller
             'matchesCount'=>$counter,
             'warnings'=>$warnings,
         ];
-    }
-    public function handleTheExcelFile()
-    {
-        //here we will extract the info from the file and insert it to DB
     }
     public function fiveTeamsSchema($teams){
         $yard=Contest::YARD;
@@ -242,6 +244,276 @@ class PartOneAutoMatchMaking extends Controller
                 'created_at'=>Carbon::now(),
                 'updated_at'=>Carbon::now(),
             ]
+        ];
+    }
+    public function sixTeamsSchema($teams){
+        $yard=Contest::YARD;
+        $ground=Contest::PLAY_GROUND;
+        return [
+            //league games 
+            [
+                'firstTeam_id'=>$teams[0]->id,
+                'secondTeam_id'=>$teams[1]->id,
+                'period'=>1,
+                'league'=>true,
+                'place'=>$yard,
+                'created_at'=>Carbon::now(),
+                'updated_at'=>Carbon::now(),
+            ],
+            [
+                'firstTeam_id'=>$teams[2]->id,
+                'secondTeam_id'=>$teams[3]->id,
+                'period'=>1,
+                'league'=>true,
+                'place'=>$yard,
+                'created_at'=>Carbon::now(),
+                'updated_at'=>Carbon::now(),
+            ],
+            [
+                'firstTeam_id'=>$teams[0]->id,
+                'secondTeam_id'=>$teams[4]->id,
+                'period'=>2,
+                'league'=>true,
+                'place'=>$yard,
+                'created_at'=>Carbon::now(),
+                'updated_at'=>Carbon::now(),
+            ],
+            [
+                'firstTeam_id'=>$teams[1]->id,
+                'secondTeam_id'=>$teams[5]->id,
+                'period'=>2,
+                'league'=>true,
+                'place'=>$yard,
+                'created_at'=>Carbon::now(),
+                'updated_at'=>Carbon::now(),
+            ],
+            [
+                'firstTeam_id'=>$teams[4]->id,
+                'secondTeam_id'=>$teams[2]->id,
+                'period'=>3,
+                'league'=>true,
+                'place'=>$yard,
+                'created_at'=>Carbon::now(),
+                'updated_at'=>Carbon::now(),
+            ],
+            [
+                'firstTeam_id'=>$teams[5]->id,
+                'secondTeam_id'=>$teams[3]->id,
+                'period'=>3,
+                'league'=>true,
+                'place'=>$yard,
+                'created_at'=>Carbon::now(),
+                'updated_at'=>Carbon::now(),
+            ],
+            [
+                'firstTeam_id'=>$teams[4]->id,
+                'secondTeam_id'=>$teams[5]->id,
+                'period'=>4,
+                'league'=>true,
+                'place'=>$yard,
+                'created_at'=>Carbon::now(),
+                'updated_at'=>Carbon::now(),
+            ],
+            [
+                'firstTeam_id'=>$teams[0]->id,
+                'secondTeam_id'=>$teams[3]->id,
+                'period'=>4,
+                'league'=>true,
+                'place'=>$yard,
+                'created_at'=>Carbon::now(),
+                'updated_at'=>Carbon::now(),
+            ],
+            [
+                'firstTeam_id'=>$teams[2]->id,
+                'secondTeam_id'=>$teams[1]->id,
+                'period'=>5,
+                'league'=>true,
+                'place'=>$yard,
+                'created_at'=>Carbon::now(),
+                'updated_at'=>Carbon::now(),
+            ],
+            [
+                'firstTeam_id'=>$teams[5]->id,
+                'secondTeam_id'=>$teams[0]->id,
+                'period'=>5,
+                'league'=>true,
+                'place'=>$yard,
+                'created_at'=>Carbon::now(),
+                'updated_at'=>Carbon::now(),
+            ],
+            [
+                'firstTeam_id'=>$teams[1]->id,
+                'secondTeam_id'=>$teams[4]->id,
+                'period'=>6,
+                'league'=>true,
+                'place'=>$yard,
+                'created_at'=>Carbon::now(),
+                'updated_at'=>Carbon::now(),
+            ],
+            [
+                'firstTeam_id'=>$teams[5]->id,
+                'secondTeam_id'=>$teams[2]->id,
+                'period'=>6,
+                'league'=>true,
+                'place'=>$yard,
+                'created_at'=>Carbon::now(),
+                'updated_at'=>Carbon::now(),
+            ],
+            [
+                'firstTeam_id'=>$teams[1]->id,
+                'secondTeam_id'=>$teams[3]->id,
+                'period'=>7,
+                'league'=>true,
+                'place'=>$yard,
+                'created_at'=>Carbon::now(),
+                'updated_at'=>Carbon::now(),
+            ],
+            [
+                'firstTeam_id'=>$teams[2]->id,
+                'secondTeam_id'=>$teams[0]->id,
+                'period'=>7,
+                'league'=>true,
+                'place'=>$yard,
+                'created_at'=>Carbon::now(),
+                'updated_at'=>Carbon::now(),
+            ],
+            [
+                'firstTeam_id'=>$teams[3]->id,
+                'secondTeam_id'=>$teams[4]->id,
+                'period'=>8,
+                'league'=>true,
+                'place'=>$yard,
+                'created_at'=>Carbon::now(),
+                'updated_at'=>Carbon::now(),
+            ],
+            //not league games----------------------------------------------------------------
+            //---------------------------------------------------------------------------------
+            [
+                'firstTeam_id'=>$teams[4]->id,
+                'secondTeam_id'=>$teams[5]->id,
+                'period'=>1,
+                'league'=>false,
+                'place'=>$ground,
+                'created_at'=>Carbon::now(),
+                'updated_at'=>Carbon::now(),
+            ],
+            [
+                'firstTeam_id'=>$teams[4]->id,
+                'secondTeam_id'=>$teams[5]->id,
+                'period'=>1,
+                'league'=>false,
+                'place'=>$ground,
+                'created_at'=>Carbon::now(),
+                'updated_at'=>Carbon::now(),
+            ],
+            [
+                'firstTeam_id'=>$teams[2]->id,
+                'secondTeam_id'=>$teams[3]->id,
+                'period'=>2,
+                'league'=>false,
+                'place'=>$ground,
+                'created_at'=>Carbon::now(),
+                'updated_at'=>Carbon::now(),
+            ],
+            [
+                'firstTeam_id'=>$teams[2]->id,
+                'secondTeam_id'=>$teams[3]->id,
+                'period'=>2,
+                'league'=>false,
+                'place'=>$ground,
+                'created_at'=>Carbon::now(),
+                'updated_at'=>Carbon::now(),
+            ],
+            [
+                'firstTeam_id'=>$teams[0]->id,
+                'secondTeam_id'=>$teams[1]->id,
+                'period'=>3,
+                'league'=>false,
+                'place'=>$ground,
+                'created_at'=>Carbon::now(),
+                'updated_at'=>Carbon::now(),
+            ],
+            [
+                'firstTeam_id'=>$teams[0]->id,
+                'secondTeam_id'=>$teams[1]->id,
+                'period'=>3,
+                'league'=>false,
+                'place'=>$ground,
+                'created_at'=>Carbon::now(),
+                'updated_at'=>Carbon::now(),
+            ],
+            [
+                'firstTeam_id'=>$teams[1]->id,
+                'secondTeam_id'=>$teams[2]->id,
+                'period'=>4,
+                'league'=>false,
+                'place'=>$ground,
+                'created_at'=>Carbon::now(),
+                'updated_at'=>Carbon::now(),
+            ],
+            [
+                'firstTeam_id'=>$teams[1]->id,
+                'secondTeam_id'=>$teams[2]->id,
+                'period'=>4,
+                'league'=>false,
+                'place'=>$ground,
+                'created_at'=>Carbon::now(),
+                'updated_at'=>Carbon::now(),
+            ],
+            [
+                'firstTeam_id'=>$teams[4]->id,
+                'secondTeam_id'=>$teams[3]->id,
+                'period'=>5,
+                'league'=>false,
+                'place'=>$ground,
+                'created_at'=>Carbon::now(),
+                'updated_at'=>Carbon::now(),
+            ],
+            [
+                'firstTeam_id'=>$teams[4]->id,
+                'secondTeam_id'=>$teams[3]->id,
+                'period'=>5,
+                'league'=>false,
+                'place'=>$ground,
+                'created_at'=>Carbon::now(),
+                'updated_at'=>Carbon::now(),
+            ],
+            [
+                'firstTeam_id'=>$teams[0]->id,
+                'secondTeam_id'=>$teams[3]->id,
+                'period'=>6,
+                'league'=>false,
+                'place'=>$ground,
+                'created_at'=>Carbon::now(),
+                'updated_at'=>Carbon::now(),
+            ],
+            [
+                'firstTeam_id'=>$teams[0]->id,
+                'secondTeam_id'=>$teams[3]->id,
+                'period'=>6,
+                'league'=>false,
+                'place'=>$ground,
+                'created_at'=>Carbon::now(),
+                'updated_at'=>Carbon::now(),
+            ],
+            [
+                'firstTeam_id'=>$teams[4]->id,
+                'secondTeam_id'=>$teams[5]->id,
+                'period'=>7,
+                'league'=>false,
+                'place'=>$ground,
+                'created_at'=>Carbon::now(),
+                'updated_at'=>Carbon::now(),
+            ],
+            [
+                'firstTeam_id'=>$teams[4]->id,
+                'secondTeam_id'=>$teams[5]->id,
+                'period'=>7,
+                'league'=>false,
+                'place'=>$ground,
+                'created_at'=>Carbon::now(),
+                'updated_at'=>Carbon::now(),
+            ],
         ];
     }
 }

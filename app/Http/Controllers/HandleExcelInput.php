@@ -99,7 +99,7 @@ class HandleExcelInput extends Controller
             return response([
                 'message'=>'found '.count($errors).' errors',
                 'errors'=>$errors
-            ]);
+            ],400);
         }
     }
     private function rowIsGood(&$cells){

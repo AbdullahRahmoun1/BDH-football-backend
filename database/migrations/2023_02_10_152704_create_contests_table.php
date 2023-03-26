@@ -17,7 +17,6 @@ return new class extends Migration
     {
         Schema::create('contests', function (Blueprint $table) {
             $table->id();
-
             $table->foreignIdFor(Team::class,'firstTeam_id');
             $table->foreignIdFor(Team::class,'secondTeam_id');
             $table->string('place',25)->default(Contest::PLAY_GROUND);

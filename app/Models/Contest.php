@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Team;
+use App\Models\RedCard;
 use App\Models\YellowCard;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,13 +18,17 @@ class Contest extends Model
         'period',
         'league',
     ];
+    protected $hidden=[
+        'created_at',
+        'updated_at'
+    ];
     const YARD='Schoolyard',PLAY_GROUND='School playground';
 
 
-    protected function firstTeam(){
+    public function firstTeam(){
         return $this->belongsTo(Team::class,'firstTeam_id');
     }
-    protected function secondTeam(){
+    public function secondTeam(){
         return $this->belongsTo(Team::class,'secondTeam_id');
     }
     public function redCards(){
