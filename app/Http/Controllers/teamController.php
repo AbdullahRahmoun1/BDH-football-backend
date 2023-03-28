@@ -50,5 +50,20 @@ class teamController extends Controller
         ->orderByDesc('points')
         ->get();
     }
+    public function uploadTeamLogo(Request $request,$id){
+        $request->validate([
+            'image'=>['file','required']
+        ]);
+        $team=Team::findOrFail($id);
+        $ext=$request->file('image')->extension();
+        $imageName=$team->name."($team->id).$ext";
+        $distinationPath="storage/app/public/logos";
+        if(file_exists("$distinationPath/$imageName")){
+            unlink("$distinationPath/$imageName");
+        }
+        $request
+        ->file('image')
+        ->storeAs($distinationPath,$imageName);
+    }
 
 }

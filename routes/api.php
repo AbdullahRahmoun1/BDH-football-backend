@@ -32,6 +32,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('topScorers',[playerController::class,'topScorers']);
     Route::get('topPlayer',[playerController::class,'topPlayer']);
     Route::get('team/{team}',[teamController::class,'show']);
+    Route::post('team/{id}',[teamController::class,'uploadTeamLogo']);
     Route::get('part2/teams',[teamController::class,'part2Teams']);
     Route::get('part1/teamsSearchSuggestions',[teamController::class,'gradesAndClassesSuggestions']);
     Route::get('finishedMatches',[ContestController::class,'finishedMatches']);
