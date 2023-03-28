@@ -24,7 +24,7 @@ return new class extends Migration
             $table->smallInteger('wines')->default(0);
             $table->smallInteger('ties')->default(0);
             $table->smallInteger('losses')->default(0);
-            $table->string('logo',25)->nullable();
+            $table->string('logo',55)->nullable()->default("default.png");
             $table->timestamps();
         });
     }

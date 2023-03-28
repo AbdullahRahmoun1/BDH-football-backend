@@ -6,6 +6,8 @@ use App\Models\Team;
 use Illuminate\Http\Request;
 use Illuminate\Support\ItemNotFoundException;
 use Constants;
+use Illuminate\Support\Facades\Storage;
+
 class teamController extends Controller
 {
     public function show($id)
@@ -52,18 +54,24 @@ class teamController extends Controller
     }
     public function uploadTeamLogo(Request $request,$id){
         $request->validate([
-            'image'=>['file','required']
-        ]);
+            'image'=>['file','required','max:1024']
+        ],[
+            'image.max'=>'The image must not be greater than 1MB.'
+        ]);    
         $team=Team::findOrFail($id);
-        $ext=$request->file('image')->extension();
-        $imageName=$team->name."($team->id).$ext";
-        $distinationPath="storage/app/public/logos";
-        if(file_exists("$distinationPath/$imageName")){
-            unlink("$distinationPath/$imageName");
-        }
-        $request
-        ->file('image')
-        ->storeAs($distinationPath,$imageName);
+        $image=$request->file('image');
+        $imageName=$team->name."($team->id)";//.$ext";
+        // get all the files with the same name..then delete them
+        //glob gets all the fiels that their path matches the patter provided
+        array_map('unlink'
+        ,glob("../storage/app/public/logos/$imageName.*"));
+        //add the extension to name
+        $imageName.=".{$image->extension()}";
+        $team->logo=$imageName;
+        $team->save();
+        $image
+        ->storeAs("public/logos",$imageName);
+        return ['message'=>'successe'];
     }
 
 }
