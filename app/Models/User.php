@@ -55,6 +55,9 @@ class User extends Authenticatable
             set:fn($value)=>bcrypt($value)
         );
     }
+    public function setUserNameAttribute($name){
+        $this->attributes['userName']=trim($name);
+    }
     public static function validationRules(){
         $nameLngthValid='between:'.self::userNameMinLength.','.self::userNameMaxLength;
         $passLngthValid='between:'.self::passwordMinLength.','.self::passwordMaxLength;

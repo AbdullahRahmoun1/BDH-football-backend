@@ -30,4 +30,7 @@ class Team extends Model
     public function getLogoAttribute($logo){
         return "storage/logos/$logo";
     }
+    public function setNameAttribute($name){
+        $this->attributes['name']=trim($name);
+    }
 }

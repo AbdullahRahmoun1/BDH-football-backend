@@ -35,6 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('team/{id}',[teamController::class,'uploadTeamLogo']);
     Route::get('part2/teams',[teamController::class,'part2Teams']);
     Route::get('part1/teamsSearchSuggestions',[teamController::class,'gradesAndClassesSuggestions']);
+    Route::get('part1/teams',[teamController::class,'part1Teams']);
     Route::get('finishedMatches',[ContestController::class,'finishedMatches']);
     Route::get('unFinishedMatches',[ContestController::class,'unFinishedMatches']);
     //admin---------------------------

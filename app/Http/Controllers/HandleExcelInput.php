@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+require_once("../settings/constants.php");
 use Carbon\Carbon;
 use App\Models\Team;
 use App\Models\User;
@@ -13,7 +13,8 @@ use Illuminate\Database\QueryException;
 use Illuminate\Validation\Rules\File as RulesFile;
 use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
-use Symfony\Component\VarDumper\VarDumper;
+use Constants;
+
 
 class HandleExcelInput extends Controller
 {
@@ -23,8 +24,7 @@ class HandleExcelInput extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function __invoke(Request $request)
-    {
+    public function __invoke(Request $request){
         //validate the input
         $request->validate([
             'excel'=>['required',RulesFile::types(['xlsx']),'max:10000']
@@ -89,6 +89,8 @@ class HandleExcelInput extends Controller
             }
         }
         $reader->close();
+        //now lets make sure that every class has 5 or 6 teams
+        $this->checkIfAllClassesHasEnoughTeams($errors);
         if(count($errors)==0){
             //no errors? => thank god.. commit the transaction
             DB::commit();
@@ -102,6 +104,28 @@ class HandleExcelInput extends Controller
             ],400);
         }
     }
+    private function checkIfAllClassesHasEnoughTeams(&$errors){
+        $grades=Team::select('grade')
+        ->distinct()
+        ->get()
+        ->pluck("grade");
+        foreach ($grades as  $grade) {
+            $classes=Team::select('class')
+            ->where('grade',$grade)
+            ->distinct()
+            ->get()
+            ->pluck("class");
+            foreach($classes as $class){
+                $count=Team::where('grade',$grade)
+                ->where('class',$class)
+                ->where('stage',Constants::LEVEL1)
+                ->count();
+                if($count!=5 && $count!=6){
+                    $errors[]="grade $grade class $class doesn't have enogh teams. it has $count teams..should be 5 or 6";
+                }
+            }
+        }  
+    }
     private function rowIsGood(&$cells){
         $result=true;
         //remove all empty cells
@@ -114,7 +138,9 @@ class HandleExcelInput extends Controller
     }
     private function extractTeamInfo($cells){
         $grade=$cells[0]->getValue();
+        $grade=strtoupper(trim($grade));
         $class=$cells[1]->getValue();
+        $class=strtoupper(trim($class));
         $teamName=$cells[2]->getValue();
         return [
             'grade'=>$grade,

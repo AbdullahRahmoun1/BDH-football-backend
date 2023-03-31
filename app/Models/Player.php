@@ -38,5 +38,8 @@ class Player extends Model
         $result='Goalkeeper';
         $this->position=$result;
     }
+    public function setNameAttribute($name){
+        $this->attributes['name']=trim($name);
+    }
 
 }

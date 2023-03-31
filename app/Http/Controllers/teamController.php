@@ -10,8 +10,7 @@ use Illuminate\Support\Facades\Storage;
 
 class teamController extends Controller
 {
-    public function show($id)
-    {
+    public function show($id){
         $team=Team::with('players:id,team_id,name,position')
         ->findOrFail($id);
         $players=$team->players;
@@ -44,7 +43,26 @@ class teamController extends Controller
         return $suggesions;
     }
     public function part1Teams(){
-        
+        $slugs= $this->gradesAndClassesSuggestions();
+        $result=[];
+        foreach($slugs as $slug){
+            $string = explode(" ", $slug);
+            //grade x class y   grade index=>1  class=>3
+            $teams=Team::select([
+                'name',
+                'logo',
+                'wins',
+                'ties',
+                'losses',
+                'points'])
+                ->where('grade',$string[1])
+                ->where('class',$string[3])
+                ->where('stage',Constants::LEVEL1)
+                ->orderByDesc('points')
+                ->get();
+            $result[$slug]=$teams;
+        }
+        return $result;
     }
     public function part2Teams(){
         return Team::select('id','name','logo','points')

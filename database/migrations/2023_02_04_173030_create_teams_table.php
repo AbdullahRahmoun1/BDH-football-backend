@@ -21,7 +21,7 @@ return new class extends Migration
             $table->integer('points')->default(0);
             $table->integer('diff')->default(0);
             $table->tinyInteger('stage')->default(1);
-            $table->smallInteger('wines')->default(0);
+            $table->smallInteger('wins')->default(0);
             $table->smallInteger('ties')->default(0);
             $table->smallInteger('losses')->default(0);
             $table->string('logo',55)->nullable()->default("default.png");
