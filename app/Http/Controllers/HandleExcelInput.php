@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-require_once("../settings/constants.php");
 use Carbon\Carbon;
 use App\Models\Team;
 use App\Models\User;
@@ -13,8 +12,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Validation\Rules\File as RulesFile;
 use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
-use Constants;
-
+use Illuminate\Support\Facades\Config;
 
 class HandleExcelInput extends Controller
 {
@@ -118,7 +116,7 @@ class HandleExcelInput extends Controller
             foreach($classes as $class){
                 $count=Team::where('grade',$grade)
                 ->where('class',$class)
-                ->where('stage',Constants::LEVEL1)
+                ->where('stage',Config::get('constants.level1'))
                 ->count();
                 if($count!=5 && $count!=6){
                     $errors[]="grade $grade class $class doesn't have enogh teams. it has $count teams..should be 5 or 6";

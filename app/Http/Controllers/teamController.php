@@ -1,13 +1,9 @@
 <?php
 namespace App\Http\Controllers;
-require_once("../settings/constants.php");
 use App\Models\Player;
 use App\Models\Team;
 use Illuminate\Http\Request;
-use Illuminate\Support\ItemNotFoundException;
-use Constants;
-use Illuminate\Support\Facades\Storage;
-
+use Illuminate\Support\Facades\Config;
 class teamController extends Controller
 {
     public function show($id){
@@ -57,7 +53,7 @@ class teamController extends Controller
                 'points'])
                 ->where('grade',$string[1])
                 ->where('class',$string[3])
-                ->where('stage',Constants::LEVEL1)
+                ->where('stage',Config::get('constants.level1'))
                 ->orderByDesc('points')
                 ->get();
             $result[$slug]=$teams;
@@ -66,7 +62,7 @@ class teamController extends Controller
     }
     public function part2Teams(){
         return Team::select('id','name','logo','points')
-        ->where('stage',Constants::LEVEL1)
+        ->where('stage',Config::get('constants.level2'))
         ->orderByDesc('points')
         ->get();
     }
