@@ -45,6 +45,7 @@ class teamController extends Controller
             $string = explode(" ", $slug);
             //grade x class y   grade index=>1  class=>3
             $teams=Team::select([
+                'id',
                 'name',
                 'logo',
                 'wins',
