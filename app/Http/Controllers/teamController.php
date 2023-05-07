@@ -88,5 +88,4 @@ class teamController extends Controller
         ->storeAs("public/logos",$imageName);
         return ['message'=>'successe'];
     }
-
 }
