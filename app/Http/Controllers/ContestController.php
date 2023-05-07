@@ -21,9 +21,10 @@ class ContestController extends Controller
     public function unFinishedMatches()
     {
         $matches = Contest::with(['firstTeam:id,name,logo', 'secondTeam:id,name,logo'])
-            ->where('firstTeamScore', '<=', -1)
+            ->where('secondTeamScore','<=', -1)
+            ->where('firstTeamScore','<=', -1)
             ->whereNotNull('date')
-            ->orderByDesc('date')
+            ->orderBy('date')
             ->get();
         $matches->makeHidden([
             'firstTeam_id', 'secondTeam_id', 'firstTeamScore', 'secondTeamScore', 'period', 'league', 'stage'
