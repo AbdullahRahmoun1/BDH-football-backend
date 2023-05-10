@@ -11,7 +11,7 @@ class ContestController extends Controller
     {
         $matches = Contest::with(['firstTeam:id,name,logo', 'secondTeam:id,name,logo'])
             ->where('firstTeamScore', '>', -1)
-            ->orderByDesc('updated_at')
+            ->orderBy('updated_at')
             ->get();
         $matches->makeHidden([
             'firstTeam_id', 'secondTeam_id', 'place', 'period', 'league', 'stage'
@@ -40,7 +40,10 @@ class ContestController extends Controller
         //get all the matches where the first team is pointing at a team that is from the grade x
         //and class y.. bcs in level 1 always matches are between two teams from the same class
         //we can ignore the secondteam relation 
-        return Contest::whereNull('date')
+        return Contest::with([
+            'firstTeam:id,name,logo',
+            'secondTeam:id,name,logo'
+            ])->whereNull('date')
             ->where('firstTeamScore', '<', 0)
             ->where('secondTeamScore', '<', 0)
             ->whereHas(
