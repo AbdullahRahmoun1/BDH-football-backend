@@ -14,7 +14,7 @@ class ContestController extends Controller
             ->orderBy('updated_at')
             ->get();
         $matches->makeHidden([
-            'firstTeam_id', 'secondTeam_id', 'place', 'period', 'league', 'stage'
+            'firstTeam_id', 'secondTeam_id', 'period'
         ]);
         return $matches;
     }
@@ -27,7 +27,11 @@ class ContestController extends Controller
             ->orderBy('date')
             ->get();
         $matches->makeHidden([
-            'firstTeam_id', 'secondTeam_id', 'firstTeamScore', 'secondTeamScore', 'period', 'league', 'stage'
+            'firstTeam_id',
+            'secondTeam_id',
+            'firstTeamScore',
+            'secondTeamScore',
+            'period',
         ]);
         return $matches;
     }
