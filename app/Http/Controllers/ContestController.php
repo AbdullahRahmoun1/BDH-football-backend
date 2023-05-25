@@ -74,4 +74,12 @@ class ContestController extends Controller
         $contest->save();
         return ['message'=>'success'];
     }
+    public function declareMatchResults(Request $request,$match){
+        
+    }
+    public function viewMatchinfo(Request $request ,Contest $match){
+        $match->firstTeam=teamController::show($match->firstTeam_id,['id','name','logo']);
+        $match->secondTeam=teamController::show($match->secondTeam_id,['id','name','logo']);
+        return $match;
+    }
 }

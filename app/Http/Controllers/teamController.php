@@ -6,8 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 class teamController extends Controller
 {
-    public function show($id){
+    public static function show($id,$selects=null){
         $team=Team::with('players:id,team_id,name,position')
+        ->when($selects,fn($query)=>$query->select($selects))
         ->findOrFail($id);
         $players=$team->players;
         $players->makeHidden(['team_id','position']);

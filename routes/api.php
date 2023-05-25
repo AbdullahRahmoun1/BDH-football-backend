@@ -45,6 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
     //admin---------------------------
     Route::post('excelInput',HandleExcelInput::class);
     Route::post('matchMaking',PartOneAutoMatchMaking::class);
+    Route::get('viewMatchInfo/{match}', [ContestController::class,'viewMatchInfo']);
 
 });
 
