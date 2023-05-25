@@ -33,4 +33,8 @@ class Team extends Model
     public function setNameAttribute($name){
         $this->attributes['name']=trim($name);
     }
+    public function getStageAttribute($league)
+    {
+        return config('stage.'.$league);
+    }
 }

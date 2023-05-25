@@ -42,10 +42,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('part1/declareMatch/{contest}',[ContestController::class,'declareMatch']);
     Route::get('finishedMatches',[ContestController::class,'finishedMatches']);
     Route::get('unFinishedMatches',[ContestController::class,'unFinishedMatches']);
+    Route::get('viewMatchInfo/{match}', [ContestController::class,'viewMatchInfo']);
+
     //admin---------------------------
     Route::post('excelInput',HandleExcelInput::class);
     Route::post('matchMaking',PartOneAutoMatchMaking::class);
-    Route::get('viewMatchInfo/{match}', [ContestController::class,'viewMatchInfo']);
-
+    Route::post('declareMatchResults/{match}',[ContestController::class,'declareMatchResults']);
 });
 

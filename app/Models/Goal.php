@@ -5,12 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class YellowCard extends Model
+class Goal extends Model
 {
     use HasFactory;
     protected $fillable=[
         'player_id',
-        'contest_id'
+        'contest_id',
+        'team_id'
     ];
     protected $hidden=[
         'created_at',

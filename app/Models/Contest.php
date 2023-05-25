@@ -20,7 +20,8 @@ class Contest extends Model
     ];
     protected $hidden=[
         'created_at',
-        'updated_at'
+        'updated_at',
+        'period'
     ];
     const YARD='Schoolyard',PLAY_GROUND='School playground';
 
@@ -36,5 +37,12 @@ class Contest extends Model
     }
     public function yellowCards(){
         return $this->hasMany(YellowCard::class);
+    }
+    public function goals(){
+        return $this->hasMany(Goal::class);
+    }
+    public function getStageAttribute($league)
+    {
+        return config('stage.'.$league);
     }
 }
