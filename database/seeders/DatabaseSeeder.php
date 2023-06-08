@@ -21,7 +21,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        User::create(['userName'=>'alaa','password'=>12345]);
+        $user=User::create(['userName'=>'alaa','password'=>12345]);
+        $user->owner_type=config('consts.admin');
         // Player::factory(30)->create();
         // Contest::factory(10)->create();
         // RedCard::factory(10)->create();

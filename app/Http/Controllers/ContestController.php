@@ -93,6 +93,7 @@ class ContestController extends Controller
             'honor'=>['required','array'],
             'saves'=>['required','array'],
             'defense'=>['required','array'],
+            'assists'=>['required','array'],
         ]);
         DB::beginTransaction();
         try{
@@ -114,7 +115,6 @@ class ContestController extends Controller
                 ],['updated_at'=>now()]);
             
             }
-            //TODO: add affect of (goals,yellow cards) on player if needed
             //second team goals (record + affect)
             $match->secondTeamScore=$request->secondTeamGoals[0]<1?
             0:count($request->secondTeamGoals);         
@@ -179,6 +179,16 @@ class ContestController extends Controller
                 ->incrementEach([
                     'score'=>config('consts.defence'),
                     'defences'=>1
+                ],['updated_at'=>now()]);
+            }
+            //assists affect
+            foreach($request->assists as $playerId){
+                if($playerId==null || $playerId<=0)
+                continue;
+                Player::where('id',$playerId)
+                ->incrementEach([
+                    'score'=>config('consts.assists'),
+                    'assists'=>1
                 ],['updated_at'=>now()]);
             }
             }catch(Exception $e){

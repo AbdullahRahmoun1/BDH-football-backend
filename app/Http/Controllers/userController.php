@@ -10,17 +10,30 @@ use Illuminate\Validation\ValidationException;
 
 class userController extends Controller
 {
-    public function signup(Request $request){
+    public function createGuest(Request $request){
         try{
             $body=$request->validate(User::validationRules());
         }catch(ValidationException $e){
             return response(['msg'=>$e->getMessage()]);
         }
         $user=User::create($body);
-        $token=$user->createToken('guestToken',['guest']);
+        $user->owner_type=config('consts.guest');
+        $user->save();
         return [
             'message'=>'success',
-            'token'=>$token->plainTextToken
+        ];
+    }
+    public function createAdmin(Request $request){
+        try{
+            $body=$request->validate(User::validationRules());
+        }catch(ValidationException $e){
+            return response(['msg'=>$e->getMessage()]);
+        }
+        $user=User::create($body);
+        $user->owner_type=config('consts.admin');
+        $user->save();
+        return [
+            'message'=>'success',
         ];
     }
     public function login(Request $request)
@@ -35,19 +48,12 @@ class userController extends Controller
         }
         $user=User::where('userName',$body['userName'])->first();
         if(!Hash::check($body['password'],$user->password))
-        return response([
-            'message'=>'wrong password'
-        ],401);
-        $tokenType=$user->player==null?User::GUEST:User::PLAYER;
-        //TODO::determin if he is an admin or not in a better way
-        if($body['userName']=='alaa' && $body['password']=='12345'){
-            $tokenType=User::ADMIN;
-        }
-        $token=$user->createToken('lsjfs',[$tokenType]);
+        abort(401,'Wrong password');
+        $token=$user->createToken($request->ip(),[$user->owner_type]);
         return response([
             'message'=>'success',
             'token'=>$token->plainTextToken,
-            'tokenType'=>$tokenType
+            'tokenType'=>$user->owner_type
         ]);
     }
     public function logout(Request $request){

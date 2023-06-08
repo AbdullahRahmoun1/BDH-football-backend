@@ -18,6 +18,7 @@ return new class extends Migration
             $table->id();
             $table->string('userName',User::userNameMaxLength)->unique();
             $table->string('password',60);
+            $table->string('owner_type')->default(config('consts.student'));
             $table->rememberToken();
             $table->timestamps();
         });
