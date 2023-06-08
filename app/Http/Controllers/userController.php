@@ -49,6 +49,7 @@ class userController extends Controller
         $user=User::where('userName',$body['userName'])->first();
         if(!Hash::check($body['password'],$user->password))
         abort(401,'Wrong password');
+        if($user->owner_type==null)abort(400,"Undefined user type");
         $token=$user->createToken($request->ip(),[$user->owner_type]);
         return response([
             'message'=>'success',

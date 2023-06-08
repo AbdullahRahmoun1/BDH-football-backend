@@ -38,15 +38,20 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('part2/teams',[teamController::class,'part2Teams']);
     Route::get('part1/teamsSearchSuggestions',[teamController::class,'gradesAndClassesSuggestions']);
     Route::get('part1/teams',[teamController::class,'part1Teams']);
-    Route::get('part1/unDeclaredMatches',[ContestController::class,'unDeclaredMatches']);
     Route::post('part1/declareMatch/{contest}',[ContestController::class,'declareMatch']);
     Route::get('finishedMatches',[ContestController::class,'finishedMatches']);
     Route::get('unFinishedMatches',[ContestController::class,'unFinishedMatches']);
     Route::get('viewMatchInfo/{match}', [ContestController::class,'viewMatchInfo']);
 
     //admin---------------------------
-    Route::post('excelInput',HandleExcelInput::class);
-    Route::post('matchMaking',PartOneAutoMatchMaking::class);
-    Route::post('declareMatchResults/{match}',[ContestController::class,'declareMatchResults']);
+    Route::group(['ability:'.config('consts.admin')],function(){
+        Route::post('excelInput',HandleExcelInput::class);
+        Route::post('matchMaking',PartOneAutoMatchMaking::class);
+        Route::post('declareMatchResults/{match}',[ContestController::class,'declareMatchResults']);
+        Route::post('createAdmin',[userController::class,'createAdmin']);
+        Route::post('createGuest',[userController::class,'createGuest']);
+        Route::get('part1/unDeclaredMatches',[ContestController::class,'unDeclaredMatches']);
+    });
+    
 });
 
