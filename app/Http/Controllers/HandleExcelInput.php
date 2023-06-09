@@ -23,6 +23,9 @@ class HandleExcelInput extends Controller
      * @return \Illuminate\Http\Response
      */
     public function __invoke(Request $request){
+        //check if the league is in part one
+        if(!LeagueController::isleagueInStage(config('stage.PART ONE')))
+        abort(422,'you can add players only when the league is in PART ONE stage');
         //validate the input
         $request->validate([
             'excel'=>['required',RulesFile::types(['xlsx']),'max:10000']

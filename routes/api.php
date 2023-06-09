@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ContestController;
 use App\Http\Controllers\HandleExcelInput;
+use App\Http\Controllers\LeagueController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\userController;
@@ -42,15 +43,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('finishedMatches',[ContestController::class,'finishedMatches']);
     Route::get('unFinishedMatches',[ContestController::class,'unFinishedMatches']);
     Route::get('viewMatchInfo/{match}', [ContestController::class,'viewMatchInfo']);
+    Route::get('league', [LeagueController::class,'view']);
 
     //admin---------------------------
-    Route::group(['ability:'.config('consts.admin')],function(){
+    Route::middleware('ability:'.config('consts.admin'))
+    ->group(function(){
         Route::post('excelInput',HandleExcelInput::class);
         Route::post('matchMaking',PartOneAutoMatchMaking::class);
         Route::post('declareMatchResults/{match}',[ContestController::class,'declareMatchResults']);
         Route::post('createAdmin',[userController::class,'createAdmin']);
         Route::post('createGuest',[userController::class,'createGuest']);
         Route::get('part1/unDeclaredMatches',[ContestController::class,'unDeclaredMatches']);
+        Route::post('admin/advanceToPartOne',[LeagueController::class,'part1']);
     });
     
 });

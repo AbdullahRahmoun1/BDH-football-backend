@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use PSpell\Config;
 use App\Models\Team;
 use App\Models\Contest;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -19,45 +20,62 @@ class PartOneAutoMatchMaking extends Controller
      */
     public function __invoke(Request $request)
     {
+        //check if the league is in part one
+        if(!LeagueController::isleagueInStage(config('stage.PART ONE')))
+        abort(422,'The league has to be in stage ( Part One ) to do this action..League is now in'
+        .config('stage.'.config('leagueSettings.currentStage)')));
+        //check if the autoMatchMaking havn't been cald before
+        if(config('leagueSettings.autoMatchMakingDone',false))
+        abort(400,'AutoMatchMaking is already done..you can\'t do it again!');
         //get all grades
-        $warnings=[];
-        $counter=0;
-        $grades=Team::select('grade')->distinct()->get()->pluck('grade');
-        foreach ($grades as  $grade) {
-            $classes=Team::select('class')
-            ->where('grade',$grade)
-            ->distinct()
-            ->get()->pluck('class');
-
-            foreach ($classes as  $class) {
-                $teams=Team::where('grade',$grade)
-                ->where('class',$class)
-                ->get();
-                $teamsCount=$teams->count();
-                switch($teamsCount){
-                    case 5:
-                        DB::beginTransaction();
-                        $contests=$this->fiveTeamsSchema($teams);
-                        $counter+=count($contests);
-                        Contest::insert($contests);
-                        DB::commit();
-                        break;
-                    case 6:
-                        DB::beginTransaction();
-                        $contests=$this->sixTeamsSchema($teams);
-                        $counter+=count($contests);
-                        Contest::insert($contests);
-                        DB::commit();
-                        break;         
-                    default:
-                    $warnings[]="Couldn't make the matches of ( Class $class Grade $grade ) because it has " 
-                    .$teamsCount." teams in it";
+        DB::beginTransaction();
+        try{
+            $warnings=[];
+            $counter=0;
+            $grades=Team::select('grade')->distinct()->get()->pluck('grade');
+            foreach ($grades as  $grade) {
+                $classes=Team::select('class')
+                ->where('grade',$grade)
+                ->distinct()
+                ->get()->pluck('class');
+                foreach ($classes as  $class) {
+                    $teams=Team::where('grade',$grade)
+                    ->where('class',$class)
+                    ->get();
+                    $teamsCount=$teams->count();
+                    switch($teamsCount){
+                        case 5:
+                            $contests=$this->fiveTeamsSchema($teams);
+                            $counter+=count($contests);
+                            Contest::insert($contests);
+                            break;
+                        case 6:        
+                            $contests=$this->sixTeamsSchema($teams);
+                            $counter+=count($contests);
+                            Contest::insert($contests);
+                            break;         
+                        default:
+                        $warnings[]="Couldn't make the matches of ( Class $class Grade $grade ) because it has " 
+                        .$teamsCount." teams in it..fix the issue then try again";
+                    }
                 }
             }
+        }catch(Exception $e){
+            $warnings[]="Error(".$e->getMessage()." at line "
+            .$e->getLine()."). Contact developer";
         }
+        if(count($warnings)!=0){
+            DB::rollback();
+            return response()->json([
+                'message'=>'found '.count($warnings).' errors or warnings',
+                'warnings/errors'=>$warnings
+            ]);
+        }
+        DB::commit();
+        LeagueController::updateInSettingsFile(['autoMatchMakingDone'=>true]);
         return [
+            'message'=>'Success!, '.$counter.'matches created',
             'matchesCount'=>$counter,
-            'warnings'=>$warnings,
         ];
     }
     public function fiveTeamsSchema($teams){
