@@ -37,4 +37,7 @@ class Team extends Model
     {
         return config('stage.'.$league);
     }
+    function scopePartOne($query) {
+        $query->where('stage',config('stage.PART ONE'));
+    }
 }

@@ -21,7 +21,7 @@ class PartOneAutoMatchMaking extends Controller
     public function __invoke(Request $request)
     {
         //check if the league is in part one
-        if(!LeagueController::isleagueInStage(config('stage.PART ONE')))
+        if(config('leagueSettings.currentStage')!=('stage.PART ONE'))
         abort(422,'The league has to be in stage ( Part One ) to do this action..League is now in'
         .config('stage.'.config('leagueSettings.currentStage)')));
         //check if the autoMatchMaking havn't been cald before

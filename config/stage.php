@@ -1,5 +1,7 @@
 <?php
 return [
+    //don't change them..(the difference between any 
+    //two consecutive stages should be 1 and exactly 1 )
     0=>'VOID',
     1=>'PART ONE',
     2=>'PART TWO',

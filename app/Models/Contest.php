@@ -45,4 +45,15 @@ class Contest extends Model
     {
         return config('stage.'.$league);
     }
+    public function scopeUndeclaredMatches($query){
+        $query->whereNull('date');
+    }
+    public function scopeDeclaredMatches($query){
+        $query->whereNotNull('date');
+    }
+    public function scopeFinishedMatches($query){
+        $query->whereNotNull('date')
+        ->where('firstTeamScore','>=0')
+        ->where('secondTeamScore','>=0');
+    }
 }

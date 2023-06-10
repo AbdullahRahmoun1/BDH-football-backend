@@ -55,6 +55,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('createGuest',[userController::class,'createGuest']);
         Route::get('part1/unDeclaredMatches',[ContestController::class,'unDeclaredMatches']);
         Route::post('admin/advanceToPartOne',[LeagueController::class,'part1']);
+        Route::post('admin/advanceToPartTwo',[LeagueController::class,'part2']);
     });
     
 });
