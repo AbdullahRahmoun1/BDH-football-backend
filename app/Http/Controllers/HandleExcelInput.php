@@ -24,7 +24,7 @@ class HandleExcelInput extends Controller
      */
     public function __invoke(Request $request){
         //check if the league is in part one
-        if(config('leagueSettings.currentStage')==config('stage.PART ONE'))
+        if(config('leagueSettings.currentStage')!=config('stage.PART ONE'))
         abort(422,'you can add players only when the league is in PART ONE stage');
         //validate the input
         $request->validate([
