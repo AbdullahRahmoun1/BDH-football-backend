@@ -55,7 +55,7 @@ class teamController extends Controller
                 'points'])
                 ->where('grade',$string[1])
                 ->where('class',$string[3])
-                ->where('stage',Config::get('constants.level1'))
+                ->where('stage',config('stage.PART ONE'))
                 ->orderByDesc('points')
                 ->get();
             $result[$slug]=$teams;
