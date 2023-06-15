@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use App\Models\Goal;
 use App\Models\Player;
 use App\Models\Contest;
 use App\Models\RedCard;
 use App\Models\YellowCard;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\PredictionController;
 
 class ContestController extends Controller
 {
@@ -82,7 +83,7 @@ class ContestController extends Controller
         return ['message'=>'success'];
     }
     public function declareMatchResults(Request $request,Contest $match){
-        $this->determinState($match);
+        Contest::determinState($match);
         if($match->state!=config('consts.declared'))
         abort('422','match is either not declared yet or finished');
         $request->validate([
@@ -191,6 +192,9 @@ class ContestController extends Controller
                     'assists'=>1
                 ],['updated_at'=>now()]);
             }
+            //handle the predictions
+            PredictionController::applyMatchResultsAffect($match);
+
             }catch(Exception $e){
                 DB::rollBack();
                 abort(400,'something went wrong'.$e->getMessage());
@@ -205,29 +209,30 @@ class ContestController extends Controller
         ];
     }
     public function viewMatchinfo(Request $request ,Contest $match){
-        $this->determinState($match);
+        Contest::determinState($match);
         $match->firstTeam=teamController::show($match->firstTeam_id,['id','name','logo']);
         $match->secondTeam=teamController::show($match->secondTeam_id,['id','name','logo']);
         if($match->state==config('consts.finished')){
             $match->load(['goals','yellowCards','redCards']);
         }
-        
-        return $match;
-    }
-    private function determinState($match)
-    {
-        if($match->date){
-            if($match->firstTeamScore>=0 &&$match->secondTeamScore>=0)
-                $state=config('consts.finished');
-            elseif($match->firstTeamScore>=0 ||$match->secondTeamScore>=0){
-                $state=config('consts.finished');
-                //TODO: inform the admin that this error happened
-            }else{
-                $state=config('consts.declared');
+        if($match->state==config('consts.declared')){
+            $match->winnerIs0=0;
+            $match->winnerIs1=0;
+            $match->winnerIs2=0;
+            $match->fqIsYes=0;
+            $match->fqIsNo=0;
+            $match->sqIsYes=0;
+            $match->sqIsNo=0;
+            foreach($match->predections as $prediction){
+                $win="winnerIs".$prediction->winner;
+                $match->$win++;
+                $fq='fqIs'.($prediction->question1?"Yes":"No");
+                $match->$fq++;
+                $fq='sqIs'.($prediction->question2?"Yes":"No");
+                $match->$fq++;
             }
-        }else {
-            $state=config('consts.undeclared');
+            unset($match->predections);
         }
-        $match->state=$state;
+        return $match;
     }
 }

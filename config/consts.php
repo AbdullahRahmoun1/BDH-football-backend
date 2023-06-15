@@ -10,6 +10,8 @@ return [
     'save'=>30,
     'defence'=>15,
     'assists'=>15,
+    'rightPrediction'=>15,
+    'wrongPrediction'=>15,
     'undeclared'=>'undelcared',
     'declared'=>'Declared',
     'finished'=>'Finished',
