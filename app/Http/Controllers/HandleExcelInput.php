@@ -119,7 +119,7 @@ class HandleExcelInput extends Controller
             foreach($classes as $class){
                 $count=Team::where('grade',$grade)
                 ->where('class',$class)
-                ->where('stage',Config::get('constants.level1'))
+                ->where('stage',config('stage.PART ONE'))
                 ->count();
                 if($count!=5 && $count!=6){
                     $errors[]="grade $grade class $class doesn't have enogh teams. it has $count teams..should be 5 or 6";
