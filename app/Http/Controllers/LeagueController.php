@@ -13,7 +13,8 @@ use Illuminate\Support\Facades\Config;
 
 class LeagueController extends Controller
 {
-public function view() {
+
+    public function view() {
         $data=config('leagueSettings');
         if(request()->user()->owner_type!=config('consts.admin')){
             unset($data['prediction question 1']);
@@ -60,8 +61,9 @@ public function view() {
             ->get()->pluck('class');
             //now iterate over them and get the winners
             foreach($classes as $class){
-                //  TODO:change points to the right field
+                //  FIXME:make sure this is the right order
                 $teams=Team::partOne()->where('class',$class)
+                ->orderByDesc('diff')
                 ->orderByDesc('points')
                 ->take($winnerNum)
                 ->get();

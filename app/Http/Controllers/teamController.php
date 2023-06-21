@@ -45,6 +45,7 @@ class teamController extends Controller
         foreach($slugs as $slug){
             $string = explode(" ", $slug);
             //grade x class y   grade index=>1  class=>3
+            //FIXME:make sure the ordering is right
             $teams=Team::select([
                 'id',
                 'name',
@@ -56,6 +57,7 @@ class teamController extends Controller
                 ->where('grade',$string[1])
                 ->where('class',$string[3])
                 ->where('stage',config('stage.PART ONE'))
+                ->orderByDesc('diff')
                 ->orderByDesc('points')
                 ->get();
             $result[$slug]=$teams;
@@ -63,8 +65,9 @@ class teamController extends Controller
         return $result;
     }
     public function part2Teams(){
+        //FIXME:make sure that the order is right
         return Team::select('id','name','logo','points')
-        ->where('stage',Config::get('constants.level2'))
+        ->where('stage',config('stage.PART TWO'))
         ->orderByDesc('points')
         ->get();
     }

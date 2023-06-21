@@ -1,1 +1,1 @@
-SELECT * FROM goals
+SELECT * FROM teams

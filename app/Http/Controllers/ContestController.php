@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\PredictionController;
+use App\Models\Prediction;
+use App\Models\Team;
 
 class ContestController extends Controller
 {
@@ -195,6 +197,8 @@ class ContestController extends Controller
             //handle the predictions
             PredictionController::applyMatchResultsAffect($match);
 
+            //add win,loss,tie to the teams records
+            $this->addMatchAffectOnTeams($match);
             }catch(Exception $e){
                 DB::rollBack();
                 abort(400,'something went wrong'.$e->getMessage());
@@ -208,12 +212,42 @@ class ContestController extends Controller
             'message'=>'success'
         ];
     }
+    private function addMatchAffectOnTeams($match){
+        $ftScore=$match->firstTeamScore;
+        $stScore=$match->secondTeamScore;
+        //first team is the winner?
+        $win=$ftScore>$stScore?1:
+        ($ftScore==$stScore?0:-1);
+        $field=$win==1?'wins':
+        ($win==0?'ties':'losses');
+        Team::where('id',$match->firstTeam_id)
+        ->incrementEach([
+            $field=>1,
+            'diff'=>$win,
+            'points'=>$win==1?config('consts.win')
+            :($win==0?config('consts.tie'):config('consts.loss'))
+        ]);
+        //if the first team is the winner...then second team lost.and like this
+        $win*=-1;
+        $field=$win==1?'wins':
+        ($win==0?'ties':'losses');
+        Team::where('id',$match->secondTeam_id)
+        ->incrementEach([
+            $field=>1,
+            'diff'=>$win,
+            'points'=>$win==1?config('consts.win')
+            :($win==0?config('consts.tie'):config('consts.loss'))
+        ]);
+    }
     public function viewMatchinfo(Request $request ,Contest $match){
         Contest::determinState($match);
-        $match->firstTeam=teamController::show($match->firstTeam_id,['id','name','logo']);
-        $match->secondTeam=teamController::show($match->secondTeam_id,['id','name','logo']);
-        if($match->state==config('consts.finished')){
-            $match->load(['goals','yellowCards','redCards']);
+        if($match->state!=config('consts.undeclared')){
+            $userId=request()->user()->id;
+            $pred=Prediction::select('winner','question1','question2','double')
+            ->where('contest_id',$match->id)
+            ->where('user_id',$userId)
+            ->first();
+            $match->userPrediction=$pred;
         }
         if($match->state==config('consts.declared')){
             $match->winnerIs0=0;
@@ -233,6 +267,18 @@ class ContestController extends Controller
             }
             unset($match->predections);
         }
+        if($match->state==config('consts.finished')){
+            $match->load(['goals','yellowCards','redCards']);
+            $fScore=$match->firstTeamScore;
+            $sScore=$match->secondTeamScore; 
+            $match->answer_winner=$fScore>$sScore?1
+            :($fScore==$sScore?0:2);
+            //TODO: replace true with the right conditions
+            $match->answerOfFirstQuestion=true;
+            $match->answerOfSecondQuestion=true;
+        }
+        $match->firstTeam=teamController::show($match->firstTeam_id,['id','name','logo']);
+        $match->secondTeam=teamController::show($match->secondTeam_id,['id','name','logo']);
         return $match;
     }
 }
