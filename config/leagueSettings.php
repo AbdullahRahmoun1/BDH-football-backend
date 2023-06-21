@@ -1,6 +1,6 @@
 <?php
  return array (
-  'currentStage' => 1,
+  'currentStage' => 2,
   'title' => 'a very nice contest!',
   'startDate' => '9-6-2023',
   'endDate' => '12/7/2023',

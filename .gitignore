@@ -16,4 +16,5 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+config/leagueSettings.php
 BaderAldean_Accounts.xlsx
