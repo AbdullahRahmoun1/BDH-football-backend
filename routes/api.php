@@ -12,6 +12,7 @@ use App\Http\Controllers\PredictionController;
 use App\Http\Controllers\teamController;
 use App\Models\Team;
 use Illuminate\Routing\RouteGroup;
+use Illuminate\Support\Facades\Artisan;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PHPUnit\TextUI\XmlConfiguration\Logging\TeamCity;
 
@@ -56,6 +57,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('part1/unDeclaredMatches',[ContestController::class,'unDeclaredMatches']);
         Route::post('admin/advanceToPartOne',[LeagueController::class,'part1']);
         Route::post('admin/advanceToPartTwo',[LeagueController::class,'part2']);
+        Route::delete('admin/restartLeague',[LeagueController::class,'restartLeague']);
     });
     
 });

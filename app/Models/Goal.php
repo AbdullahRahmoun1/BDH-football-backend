@@ -21,8 +21,7 @@ class Goal extends Model
         'contest_id',
         'id'
     ];
-    public function player()
-    {
+    public function player(){
         return $this->belongsTo(Player::class);
     }
 }

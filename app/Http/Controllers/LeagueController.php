@@ -3,13 +3,21 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use App\Models\Goal;
 use App\Models\Team;
+use App\Models\User;
+use App\Models\Player;
 use App\Models\Contest;
+use App\Models\RedCard;
+use App\Models\Prediction;
+use App\Models\YellowCard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Config;
-
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Artisan;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class LeagueController extends Controller
 {
@@ -22,6 +30,34 @@ class LeagueController extends Controller
         }
         $data['currentStage']=config('stage.'.$data['currentStage']);
         return $data;
+    }
+    public static function restartLeague() {
+        try{
+            User::where('owner_type',config('consts.student'))
+            ->delete();
+            PersonalAccessToken::
+            where('abilities','like','%'.config('consts.student').'%')
+            ->delete();
+            Schema::disableForeignKeyConstraints();
+            Contest::truncate();
+            Goal::truncate();
+            YellowCard::truncate();
+            RedCard::truncate();
+            Team::truncate();
+            Player::truncate();
+            Prediction::truncate();
+            Schema::enableForeignKeyConstraints();
+            LeagueController::updateInSettingsFile([
+                'currentStage' => 0,
+                'autoMatchMakingDone' => false
+            ]);
+        }catch(Exception $e){
+            abort(400,'Restarting faild :( , Cause: '
+            .$e->getMessage());
+        }
+        return [
+            'message'=>'League restarted successfully :)'
+        ];
     }
     public function part1(){
         $this->canProceedTo(config('stage.PART ONE'));
