@@ -16,7 +16,10 @@ class Goal extends Model
     ];
     protected $hidden=[
         'created_at',
-        'updated_at'
+        'updated_at',
+        'player_id',
+        'contest_id',
+        'id'
     ];
     public function player()
     {

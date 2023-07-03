@@ -14,7 +14,7 @@ class teamController extends Controller
         $players->makeHidden(['team_id','position']);
         $captain=$players->firstWhere('position',Player::CAPTAIN);
         $goalKeeper=$players->firstWhere('position',Player::GOAL_KEEPER);
-        $players=$players->whereNotIn('id',[$captain->id,$goalKeeper->id])->all();
+        $players=$players->whereNotIn('id',[$captain->id??-1,$goalKeeper->id??-1])->all();
         $team->attackers=array_values($players);
         $team->captain=$captain;
         $team->goalKeeper=$goalKeeper;

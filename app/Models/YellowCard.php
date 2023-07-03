@@ -16,7 +16,10 @@ class YellowCard extends Model
     ];
     protected $hidden=[
         'created_at',
-        'updated_at'
+        'updated_at',
+        'player_id',
+        'contest_id',
+        'team_id'
     ];
     public function player(){
         return $this->belongsTo(Player::class);

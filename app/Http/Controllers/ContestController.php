@@ -295,6 +295,31 @@ class ContestController extends Controller
                 'yellowCards','yellowCards.player:id,name',
                 'redCards','redCards.player:id,name'
             ]);
+            $firstIds=Player::where('team_id',$match->firstTeam_id)
+            ->get()->pluck('id')->toArray();
+            $secondIds=Player::where('team_id',$match->secondTeam_id)
+            ->get()->pluck('id')->toArray();
+            foreach($match->goals as $goal){
+                $player=$goal->player;
+                $player->transfered=
+                !in_array($player->id,$firstIds)
+                &&
+                !in_array($player->id,$secondIds);
+            }
+            foreach($match->yellowCards as $yellow){
+                $player=$yellow->player;
+                $player->transfered=
+                !in_array($player->id,$firstIds)
+                &&
+                !in_array($player->id,$secondIds);
+            }
+            foreach($match->redCards as $red){
+                $player=$red->player;
+                $player->transfered=
+                !in_array($player->id,$firstIds)
+                &&
+                !in_array($player->id,$secondIds);
+            }
             $fScore=$match->firstTeamScore;
             $sScore=$match->secondTeamScore; 
             $match->answer_winner=$fScore>$sScore?1
@@ -303,6 +328,7 @@ class ContestController extends Controller
             $match->answerOfFirstQuestion=true;
             $match->answerOfSecondQuestion=true;
         }
+        
         $match->firstTeam=teamController::show($match->firstTeam_id,['id','name','logo']);
         $match->secondTeam=teamController::show($match->secondTeam_id,['id','name','logo']);
         return $match;
