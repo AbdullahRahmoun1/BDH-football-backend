@@ -2,6 +2,7 @@
 
 use App\Models\Player;
 use App\Models\Contest;
+use App\Models\Team;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -19,6 +20,7 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(Player::class);
             $table->foreignIdFor(Contest::class);
+            $table->foreignIdFor(Team::class);
             $table->timestamps();
         });
     }

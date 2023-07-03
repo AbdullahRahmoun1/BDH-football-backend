@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Player;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Goal extends Model
 {
@@ -17,4 +18,8 @@ class Goal extends Model
         'created_at',
         'updated_at'
     ];
+    public function player()
+    {
+        return $this->belongsTo(Player::class);
+    }
 }

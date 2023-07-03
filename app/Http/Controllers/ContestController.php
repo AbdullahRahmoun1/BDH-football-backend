@@ -100,110 +100,16 @@ class ContestController extends Controller
         ]);
         DB::beginTransaction();
         try{
-            //first team goals (record + affect)
-            $match->firstTeamScore=$request->firstTeamGoals[0]<1?
-            0:count($request->firstTeamGoals);         
-            foreach($request->firstTeamGoals as $playerId){
-                if($playerId==null || $playerId<=0)
-                continue;
-                Goal::create([
-                    'player_id'=>$playerId,
-                    'contest_id'=>$match->id,
-                    'team_id'=>$match->firstTeam_id
-                ]);
-                Player::where('id',$playerId)
-                ->incrementEach([
-                    'score'=>config('consts.goal'),
-                    'goals'=>1
-                ],['updated_at'=>now()]);
-            
-            }
-            //second team goals (record + affect)
-            $match->secondTeamScore=$request->secondTeamGoals[0]<1?
-            0:count($request->secondTeamGoals);         
-            foreach($request->secondTeamGoals as $playerId){
-                if($playerId==null || $playerId<=0)
-                continue;
-                Goal::create([
-                    'player_id'=>$playerId,
-                    'contest_id'=>$match->id,
-                    'team_id'=>$match->secondTeam_id
-                ]);
-                Player::where('id',$playerId)
-                ->incrementEach([
-                    'score'=>config('consts.goal'),
-                    'goals'=>1
-                ],['updated_at'=>now()]);
-            }
-            //yellow cards (record+affect)
-            foreach($request->yellowCards as $playerId){
-                if($playerId==null || $playerId<=0)
-                continue;
-                YellowCard::create([
-                    'contest_id'=>$match->id,
-                    'player_id'=>$playerId
-                ]);
-                Player::find($playerId)
-                ->increment('score',config('consts.yellowCard'));    
-            }
-            //red cards db
-            foreach($request->redCards as $playerId){
-                if($playerId==null || $playerId<=0)
-                continue;
-                RedCard::create([
-                    'contest_id'=>$match->id,
-                    'player_id'=>$playerId
-                ]);
-                Player::find($playerId)
-                ->increment('score',config('consts.redCard'));
-            }
-            //honor affect
-            foreach($request->honor as $playerId){
-                if($playerId==null || $playerId<=0)
-                continue;
-                Player::find($playerId)
-                ->increment('honor',config('consts.honor'));
-            }
-            //saves affect
-            foreach($request->saves as $playerId){
-                if($playerId==null || $playerId<=0)
-                continue;
-                Player::where('id',$playerId)
-                ->incrementEach([
-                    'score'=>config('consts.save'),
-                    'saves'=>1
-                ],['updated_at'=>now()]);
-            }
-            //defense affect
-            foreach($request->defense as $playerId){
-                if($playerId==null || $playerId<=0)
-                continue;
-                Player::where('id',$playerId)
-                ->incrementEach([
-                    'score'=>config('consts.defence'),
-                    'defences'=>1
-                ],['updated_at'=>now()]);
-            }
-            //assists affect
-            foreach($request->assists as $playerId){
-                if($playerId==null || $playerId<=0)
-                continue;
-                Player::where('id',$playerId)
-                ->incrementEach([
-                    'score'=>config('consts.assists'),
-                    'assists'=>1
-                ],['updated_at'=>now()]);
-            }
-            //handle the predictions
-            PredictionController::applyMatchResultsAffect($match);
-
+            //goals,redCards,yellow..,defence...........
+            $this->addMatchAffectOnPlayers($request,$match);
             //add win,loss,tie to the teams records
             $this->addMatchAffectOnTeams($match);
-            }catch(Exception $e){
-                DB::rollBack();
-                abort(400,'something went wrong'.$e->getMessage());
-                Log::log(1,$e->getMessage());
-
+            //handle the predictions
+            PredictionController::applyMatchResultsAffect($match);
+        }catch(Exception $e){
+            DB::rollBack();
+            abort(400,'something went wrong'.$e->getMessage());
+            Log::log(1,$e->getMessage());
         }
         DB::commit();
         unset($match->state);
@@ -239,6 +145,122 @@ class ContestController extends Controller
             :($win==0?config('consts.tie'):config('consts.loss'))
         ]);
     }
+    private function addMatchAffectOnPlayers($request,&$match){
+        $match->firstTeamScore=$request->firstTeamGoals[0]<1?
+        0:count($request->firstTeamGoals);   
+        $firstIds=Player::where('team_id',$match->firstTeam_id)
+        ->get()->pluck('id')->toArray();
+        $secondIds=Player::where('team_id',$match->secondTeam_id)
+        ->get()->pluck('id')->toArray();
+        foreach($request->firstTeamGoals as $playerId){
+            if($playerId==null || $playerId<=0)
+            continue;
+            $team_id=$this->playerBelongsTo($playerId,$match
+            ,$firstIds,$secondIds);
+            Goal::create([
+                'player_id'=>$playerId,
+                'contest_id'=>$match->id,
+                'team_id'=>$team_id
+            ]);
+            Player::where('id',$playerId)
+            ->incrementEach([
+                'score'=>config('consts.goal'),
+                'goals'=>1
+            ],['updated_at'=>now()]);
+        }
+        //second team goals (record + affect)
+        $match->secondTeamScore=$request->secondTeamGoals[0]<1?
+        0:count($request->secondTeamGoals);         
+        foreach($request->secondTeamGoals as $playerId){
+            if($playerId==null || $playerId<=0)
+            continue;
+            $team_id=$this->playerBelongsTo($playerId,$match
+            ,$firstIds,$secondIds);
+            Goal::create([
+                'player_id'=>$playerId,
+                'contest_id'=>$match->id,
+                'team_id'=>$team_id
+            ]);
+            Player::where('id',$playerId)
+            ->incrementEach([
+                'score'=>config('consts.goal'),
+                'goals'=>1
+            ],['updated_at'=>now()]);
+        }
+        //yellow cards (record+affect)
+        foreach($request->yellowCards as $playerId){
+            if($playerId==null || $playerId<=0)
+            continue;
+            $team_id=$this->playerBelongsTo($playerId,$match
+            ,$firstIds,$secondIds);
+            YellowCard::create([
+                'contest_id'=>$match->id,
+                'player_id'=>$playerId,
+                'team_id'=>$team_id
+            ]);
+            Player::find($playerId)
+            ->increment('score',config('consts.yellowCard'));    
+        }
+        //red cards db
+        foreach($request->redCards as $playerId){
+            if($playerId==null || $playerId<=0)
+            continue;
+            $team_id=$this->playerBelongsTo($playerId,$match
+            ,$firstIds,$secondIds);
+            RedCard::create([
+                'contest_id'=>$match->id,
+                'player_id'=>$playerId,
+                'team_id'=>$team_id
+            ]);
+            Player::find($playerId)
+            ->increment('score',config('consts.redCard'));
+        }
+        //honor affect
+        foreach($request->honor as $playerId){
+            if($playerId==null || $playerId<=0)
+            continue;
+            $this->playerBelongsTo($playerId,$match
+            ,$firstIds,$secondIds);
+            Player::find($playerId)
+            ->increment('honor',config('consts.honor'));
+        }
+        //saves affect
+        foreach($request->saves as $playerId){
+            if($playerId==null || $playerId<=0)
+            continue;
+            $this->playerBelongsTo($playerId,$match
+            ,$firstIds,$secondIds);
+            Player::where('id',$playerId)
+            ->incrementEach([
+                'score'=>config('consts.save'),
+                'saves'=>1
+            ],['updated_at'=>now()]);
+        }
+        //defense affect
+        foreach($request->defense as $playerId){
+            if($playerId==null || $playerId<=0)
+            continue;
+            $this->playerBelongsTo($playerId,$match
+            ,$firstIds,$secondIds);
+            Player::where('id',$playerId)
+            ->incrementEach([
+                'score'=>config('consts.defence'),
+                'defences'=>1
+            ],['updated_at'=>now()]);
+        }
+        //assists affect
+        foreach($request->assists as $playerId){
+            if($playerId==null || $playerId<=0)
+            continue;
+            $this->playerBelongsTo($playerId,$match
+            ,$firstIds,$secondIds);
+            Player::where('id',$playerId)
+            ->incrementEach([
+                'score'=>config('consts.assists'),
+                'assists'=>1
+            ],['updated_at'=>now()]);
+        }        
+    }
     public function viewMatchinfo(Request $request ,Contest $match){
         Contest::determinState($match);
         if($match->state!=config('consts.undeclared')){
@@ -268,7 +290,11 @@ class ContestController extends Controller
             unset($match->predections);
         }
         if($match->state==config('consts.finished')){
-            $match->load(['goals','yellowCards','redCards']);
+            $match->load([
+                'goals','goals.player:id,name',
+                'yellowCards','yellowCards.player:id,name',
+                'redCards','redCards.player:id,name'
+            ]);
             $fScore=$match->firstTeamScore;
             $sScore=$match->secondTeamScore; 
             $match->answer_winner=$fScore>$sScore?1
@@ -280,5 +306,17 @@ class ContestController extends Controller
         $match->firstTeam=teamController::show($match->firstTeam_id,['id','name','logo']);
         $match->secondTeam=teamController::show($match->secondTeam_id,['id','name','logo']);
         return $match;
+    }
+    function playerBelongsTo($player,$match,$firstIds,$secondIds) {
+        $result=-1;
+        if(in_array($player,$firstIds))
+        $result=1;
+        if(in_array($player,$secondIds))
+        $result=2;
+        if($result==-1)
+        throw new Exception('..Player with id ('.$player
+        .') doesn\'t belong to any team');
+        $call=($result==1?'first':'second').'Team_id';
+        return $match->$call;
     }
 }

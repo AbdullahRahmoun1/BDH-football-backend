@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Team;
 use App\Models\Player;
 use App\Models\Contest;
 use Illuminate\Support\Facades\Schema;
@@ -19,6 +20,7 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(Player::class);
             $table->foreignIdFor(Contest::class);
+            $table->foreignIdFor(Team::class);
             $table->timestamps();
         });
     }

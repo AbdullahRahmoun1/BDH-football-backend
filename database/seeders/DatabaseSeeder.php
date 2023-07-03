@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
+use App\Http\Controllers\LeagueController;
 use App\Models\Team;
 use App\Models\User;
 use App\Models\Player;
@@ -24,6 +25,10 @@ class DatabaseSeeder extends Seeder
         $user=User::create(['userName'=>'alaa','password'=>12345]);
         $user->owner_type=config('consts.admin');
         $user->save();
+        LeagueController::updateInSettingsFile([
+            'currentStage' => 0,
+            'autoMatchMakingDone' => false
+        ]);
         // Player::factory(30)->create();
         // Contest::factory(10)->create();
         // RedCard::factory(10)->create();

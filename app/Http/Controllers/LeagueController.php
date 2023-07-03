@@ -87,6 +87,22 @@ class LeagueController extends Controller
         ];
         
     }
+    public function declareWinner(){
+        $this->canProceedTo(config('stage.END OF LEAGUE'));
+        //now check that there isn't any declared or undeclared matches
+        $matchesCount=Contest::where('stage',config('stage.PART TWO'))
+        ->where('firstTeamScore','<',0)
+        ->where('secondTeamScore','<',0)
+        ->count();
+        if($matchesCount>0)
+        abort(400,"There are ".$matchesCount." matches that you have to declare"
+        ."their results first!");
+        $teams=Team::partOne()
+                ->orderByDesc('diff')
+                ->orderByDesc('points')
+                ->first();
+
+    }
     public static function updateInSettingsFile($data1){
         $data=config('leagueSettings');
         foreach($data1 as $key => $value){
