@@ -61,6 +61,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('admin/advanceToPartTwo',[LeagueController::class,'part2']);
         Route::delete('admin/restartLeague',[LeagueController::class,'restartLeague']);
         Route::post('admin/declareWinners',[LeagueController::class,'declareWinners']);
+        Route::post('admin/uploadPart2Tree',[LeagueController::class,'uploadPart2Tree']);
 
     });
     

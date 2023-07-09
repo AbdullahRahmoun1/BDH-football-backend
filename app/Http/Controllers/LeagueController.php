@@ -20,10 +20,32 @@ class LeagueController extends Controller
 
     public function view() {
         $data=config('leagueSettings');
-        if(request()->user()->owner_type!=config('consts.admin')){
-            unset($data['prediction question 1']);
-            unset($data['prediction question 2']);
+        $remove = [];
+        $current=config('leagueSettings.currentStage');
+        $part1=config('stage.PART ONE');
+        $part2=config('stage.PART TWO');
+        //not an admin?no need forit
+        if(request()->user()->owner_type
+        !=config('consts.admin')){
+            $remove[]='autoMatchMakingDone';
         }
+        if($current<=$part1){
+            //partOne doesn't need any of thos
+            array_push($remove,...[
+                '7&8 Winner',
+                '9 Winner',
+                'treeUri(7&8)',
+                'treeUri(9)'
+            ]);
+        }
+        else if($current<=$part2){
+            //partTwo doesn't need those
+            array_push($remove,...[
+                '7&8 Winner',
+                '9 Winner',
+            ]);
+        }
+        $data = array_diff_key($data, array_flip($remove));
         $data['currentStage']=config('stage.'.$data['currentStage']);
         return $data;
     }
@@ -120,9 +142,9 @@ class LeagueController extends Controller
         ('currentStage'=>config('stage.PART TWO')));
         DB::commit();
         return [
-            'message'=>'Sucess!!
-            7&8 League : '.$teamsInPartTwo8.' teams advanced to part 2
-            9 League : '.$teamsInPartTwo9.' teams advanced to part 2'
+            'message'=>'Sucess!!',
+            'League(7&8)'=>$teamsInPartTwo8.' teams advanced to PART_TWO',
+            'League(9)'=>$teamsInPartTwo9.' teams advanced to PART_TWO'
         ];
     }
     public function declareWinners(){
@@ -180,6 +202,34 @@ class LeagueController extends Controller
         //all done
         return [
             'message'=>'Success!'
+        ];
+    }
+    public function uploadPart2Tree(){
+     //validate the input
+        $data=request()->validate([
+            'image'=>['file','required','max:3072'],
+            'league(9)'=>['required','boolean']
+        ],[
+            'image.max'=>'The image must not be greater than 3MB.'
+        ]);    
+        $image=request()->file('image');
+        $imageName=$data['league(9)']?'(9)':'(7&8)';
+     // delete previous image
+        //glob gets all the fiels that their path matches the patter provided
+        array_map('unlink'
+        ,glob("../storage/app/public/leagueTree/$imageName.*"));
+     // put it in storage
+        //add the extension to name
+        $imageFullName="$imageName.{$image->extension()}";
+        $image
+        ->storeAs("public/leagueTree",$imageFullName);
+        $uri="storage/leagueTree/$imageFullName";
+        $this->updateInSettingsFile([
+            "treeUri$imageName"=>$uri
+        ]);
+        return [
+            'message'=>'successe',
+            'newUri'=>$uri
         ];
     }
     public static function updateInSettingsFile($data1){

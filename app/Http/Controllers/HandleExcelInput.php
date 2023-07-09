@@ -201,7 +201,7 @@ class HandleExcelInput extends Controller
     private function arrayToExcel($array)
     {
         //create a file..get its path...initialize the writer
-        $file = fopen('BaderAldean_Accounts.xlsx','w');
+        $file = fopen(base_path().'\\storage\\app\\BaderAldean_Accounts.xlsx','w');
         $path = stream_get_meta_data($file)['uri']; 
         $writer = WriterEntityFactory::createXLSXWriter();
         $writer->openToFile($path);
