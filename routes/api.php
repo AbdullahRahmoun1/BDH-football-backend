@@ -54,10 +54,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('declareMatchResults/{match}',[ContestController::class,'declareMatchResults']);
         Route::post('createAdmin',[userController::class,'createAdmin']);
         Route::post('createGuest',[userController::class,'createGuest']);
+        Route::post('newMatch',[ContestController::class,'addNewContest']);
+        Route::delete('deleteMatch/{contest}',[ContestController::class,'deleteContest']);    
         Route::get('part1/unDeclaredMatches',[ContestController::class,'unDeclaredMatches']);
         Route::post('admin/advanceToPartOne',[LeagueController::class,'part1']);
         Route::post('admin/advanceToPartTwo',[LeagueController::class,'part2']);
         Route::delete('admin/restartLeague',[LeagueController::class,'restartLeague']);
+        Route::post('admin/declareWinners',[LeagueController::class,'declareWinners']);
+
     });
     
 });

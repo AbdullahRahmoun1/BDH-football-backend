@@ -62,7 +62,7 @@ class PredictionController extends Controller
             $right++; else $wrong++;
 
             $total=$right*config('consts.rightPrediction')
-            - $wrong*config("consts.wrongPrediction");
+            - $wrong*config("consts.+wrongPrediction");
             $player->increment('prediction',$total*$x);
         }
     }

@@ -101,4 +101,5 @@ class Contest extends Model
     {
         return $this->hasMany(Prediction::class);
     }
+
 }

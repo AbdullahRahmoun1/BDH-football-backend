@@ -65,11 +65,22 @@ class teamController extends Controller
         return $result;
     }
     public function part2Teams(){
-        //FIXME:make sure that the order is right
-        return Team::select('id','name','logo','points')
+        $l1=Team::select('id','name','logo','points','disqualified')
         ->where('stage',config('stage.PART TWO'))
+        ->where('grade','!=','9')
+        ->orderBy('disqualified')
         ->orderByDesc('points')
         ->get();
+        $l2=Team::select('id','name','logo','points','disqualified')
+        ->where('stage',config('stage.PART TWO'))
+        ->where('grade','=','9')
+        ->orderBy('disqualified')
+        ->orderByDesc('points')
+        ->get();
+        return [
+            '7&8 League'=>$l1,
+            '9 League'=>$l2,
+        ];
     }
     public function uploadTeamLogo(Request $request,$id){
         $request->validate([

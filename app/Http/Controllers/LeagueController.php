@@ -11,12 +11,8 @@ use App\Models\Contest;
 use App\Models\RedCard;
 use App\Models\Prediction;
 use App\Models\YellowCard;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Artisan;
 use Laravel\Sanctum\PersonalAccessToken;
 
 class LeagueController extends Controller
@@ -85,59 +81,106 @@ class LeagueController extends Controller
         //now we can proceed to part2
         //how many teams will go to part2 from every class?
         $winnerNum=request()->validate([
-            'teamsInEachClass'=>['required','numeric','between:1,6']
+            'teamsInEachClass(7&8)'=>['required','numeric','between:1,6'],
+            'teamsInEachClass(9)'=>['required','numeric','between:1,6']
         ]);
-        $winnerNum=$winnerNum['teamsInEachClass'];
+        $winnerNum8=$winnerNum['teamsInEachClass(7&8)'];
+        $winnerNum9=$winnerNum['teamsInEachClass(9)'];
+        
         DB::beginTransaction();
-        $teamsInPartTwo=0;
+        $teamsInPartTwo8=0;
+        $teamsInPartTwo9=0;
         try{
             //get all calsses
-            $classes=Team::select('class')
+            $classes=Team::select('class','grade')
             ->distinct()
-            ->get()->pluck('class');
+            ->get();
             //now iterate over them and get the winners
             foreach($classes as $class){
-                //  FIXME:make sure this is the right order
-                $teams=Team::partOne()->where('class',$class)
+                $l1=$class->grade!=9;
+                // return $class->grade."   shslhs    ".($l1?$winnerNum8:$winnerNum9);
+                $teams=Team::partOne()->where('class',$class->class)
+                ->where('grade',$class->grade)
                 ->orderByDesc('diff')
                 ->orderByDesc('points')
-                ->take($winnerNum)
+                ->take($l1?$winnerNum8:$winnerNum9)
                 ->get();
                 foreach($teams as $team){
                     $team->stage=config("stage.PART TWO");
                     $team->save();
-                    $teamsInPartTwo++;
+                    $teamsInPartTwo8+=$l1?1:0;
+                    $teamsInPartTwo9+=$l1?0:1;
                 }
             }
         }catch(Exception $e){
             DB::rollBack();
-            abort('Something went wrong..error('.$e->getMessage().')..contact developer');
+            abort(400,'Something went wrong..error('.$e->getMessage().')..contact developer');
         }
         LeagueController::updateInSettingsFile(array
         ('currentStage'=>config('stage.PART TWO')));
         DB::commit();
         return [
-            'message'=>'The league is now in PART TWO stage!, and '.$teamsInPartTwo .
-            ' teams proceded to this stage',
-            'TeamCount'=>$teamsInPartTwo
+            'message'=>'Sucess!!
+            7&8 League : '.$teamsInPartTwo8.' teams advanced to part 2
+            9 League : '.$teamsInPartTwo9.' teams advanced to part 2'
         ];
-        
     }
-    public function declareWinner(){
+    public function declareWinners(){
         $this->canProceedTo(config('stage.END OF LEAGUE'));
-        //now check that there isn't any declared or undeclared matches
-        $matchesCount=Contest::where('stage',config('stage.PART TWO'))
-        ->where('firstTeamScore','<',0)
-        ->where('secondTeamScore','<',0)
-        ->count();
-        if($matchesCount>0)
-        abort(400,"There are ".$matchesCount." matches that you have to declare"
-        ."their results first!");
-        $teams=Team::partOne()
-                ->orderByDesc('diff')
-                ->orderByDesc('points')
-                ->first();
-
+        $data=request()->validate([
+            'Winner_id(7&8)'=>['required','numeric','exists:teams,id'],
+            'Winner_id(9)'=>['required','numeric','exists:teams,id'],
+        ]);
+        $l8Winner=Team::find($data['Winner_id(7&8)']);
+        $l9Winner=Team::find($data['Winner_id(9)']);
+    //check l8 winner for logical errors
+        //in right stage?
+        if($l8Winner->getRawOriginal('stage')
+        !=config('leagueSettings.currentStage'))
+        abort(422,"Error(7&8 winner)..This team didn't reach part two!");
+        //is it already disqualified?
+        if($l8Winner->disqualified)
+        abort(422,"Error(7&8 winner)..This team is disqualified!");
+        //is it in the right league?
+        if($l8Winner->grade==9)
+        abort(422,'Error(7&8 winner)..This team is in (9 League)');
+    //check l9 winner for logical errors
+        //in right stage?
+        if($l9Winner->getRawOriginal('stage')
+        !=config('leagueSettings.currentStage'))
+        abort(422,"Error(9 winner)..This team didn't reach part two!");
+        //is it already disqualified?
+        if($l9Winner->disqualified)
+        abort(422,"Error(9 winner)..This team is disqualified!");
+        //is it in the right league?
+        if($l9Winner->grade!=9)
+        abort(422,'Error(9 winner)..This team is in (7&8 League)');
+    //all good...then we proceed
+        DB::beginTransaction();
+        try{
+            $l8Winner->stage=config('stage.END OF LEAGUE');
+            $l9Winner->stage=config('stage.END OF LEAGUE');
+            $l8Winner->points+=config('consts.leagueWin');
+            $l9Winner->points+=config('consts.leagueWin');
+            $l8Winner->save();
+            $l9Winner->save();
+            //now update league settings 
+            $new=[
+                'currentStage'=>config('stage.END OF LEAGUE'),
+                'endDate'=>now(),
+                '7&8 Winner'=>$l8Winner->id,
+                '9 Winner'=>$l9Winner->id,
+            ];
+            $this->updateInSettingsFile($new);
+        }catch(Exception $e){
+            abort(400,$e->getMessage());
+            DB::rollBack();
+        }
+        DB::commit();
+        //all done
+        return [
+            'message'=>'Success!'
+        ];
     }
     public static function updateInSettingsFile($data1){
         $data=config('leagueSettings');

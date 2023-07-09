@@ -25,6 +25,7 @@ return new class extends Migration
             $table->smallInteger('ties')->default(0);
             $table->smallInteger('losses')->default(0);
             $table->string('logo',55)->nullable()->default("default.png");
+            $table->boolean('disqualified')->default(false);
             $table->timestamps();
         });
     }

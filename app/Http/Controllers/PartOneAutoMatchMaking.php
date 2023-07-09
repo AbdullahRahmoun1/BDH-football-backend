@@ -22,8 +22,8 @@ class PartOneAutoMatchMaking extends Controller
     {
         //check if the league is in part one
         if(config('leagueSettings.currentStage')!=config('stage.PART ONE'))
-        abort(422,'The league has to be in stage ( Part One ) to do this action..League is now in'
-        .config('stage.'.config('leagueSettings.currentStage)')));
+        abort(422,'The league has to be in stage ( Part One ) to do this action..League is now in '
+        .config('stage.'.config('leagueSettings.currentStage')));
         //check if the autoMatchMaking havn't been cald before
         if(config('leagueSettings.autoMatchMakingDone',false))
         abort(400,'AutoMatchMaking is already done..you can\'t do it again!');
