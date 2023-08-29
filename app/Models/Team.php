@@ -40,4 +40,11 @@ class Team extends Model
     function scopePartOne($query) {
         $query->where('stage',config('stage.PART ONE'));
     }
+    public static function selectViewFields() {
+        return Team::select([
+                'id','name','logo',
+                'wins','ties','losses',
+                'points'
+        ]);
+    }
 }

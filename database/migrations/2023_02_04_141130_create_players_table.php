@@ -25,7 +25,7 @@ return new class extends Migration
             $table->smallInteger('goals')->default(0);
             $table->smallInteger('saves')->default(0);
             $table->smallInteger('assists')->default(0);
-            $table->smallInteger('defences')->default(0);
+            $table->smallInteger('c')->default(0);
             $table->unsignedTinyInteger('position')->default(1);
             $table->foreignIdFor(Team::class);
             $table->timestamps();

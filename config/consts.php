@@ -16,7 +16,7 @@ return [
     'assists'=>15,
     'rightPrediction'=>15,
     'wrongPrediction'=>15,
-    'undeclared'=>'undelcared',
+    'undeclared'=>'undeclared',
     'declared'=>'Declared',
     'finished'=>'Finished',
     'matchError'=>'MatchError'       

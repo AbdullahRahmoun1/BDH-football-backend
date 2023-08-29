@@ -26,6 +26,12 @@ use PHPUnit\TextUI\XmlConfiguration\Logging\TeamCity;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+Route::get('adminThing',function(){
+    Artisan::call('migrate:fresh --seed');
+    Artisan::call('storage:link');
+});
+
 Route::post('signup',[userController::class,'signup']);
 Route::post('login',[userController::class,'login']);
 Route::middleware('auth:sanctum')->group(function () {
@@ -34,12 +40,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('player/{id}',[playerController::class,'show']);
     Route::post('/prediction',[PredictionController::class,'post']);
     Route::get('topScorers',[playerController::class,'topScorers']);
+    Route::get('topKeepers',[playerController::class,'topKeepers']);
+    Route::get('topDefenders',[playerController::class,'topDefenders']);
     Route::get('topPlayer',[playerController::class,'topPlayer']);
     Route::get('team/{team}',[teamController::class,'show']);
     Route::post('team/{id}',[teamController::class,'uploadTeamLogo']);
     Route::get('part2/teams',[teamController::class,'part2Teams']);
     Route::get('part1/teamsSearchSuggestions',[teamController::class,'gradesAndClassesSuggestions']);
     Route::get('part1/teams',[teamController::class,'part1Teams']);
+    Route::get('part1/teamsSortedByPoints',[teamController::class,'part1TeamsSortedByBest']);
     Route::post('part1/declareMatch/{contest}',[ContestController::class,'declareMatch']);
     Route::get('finishedMatches',[ContestController::class,'finishedMatches']);
     Route::get('unFinishedMatches',[ContestController::class,'unFinishedMatches']);
@@ -66,4 +75,5 @@ Route::middleware('auth:sanctum')->group(function () {
     });
     
 });
+
 

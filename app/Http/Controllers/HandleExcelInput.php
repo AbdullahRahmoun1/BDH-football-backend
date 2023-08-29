@@ -12,7 +12,6 @@ use Illuminate\Database\QueryException;
 use Illuminate\Validation\Rules\File as RulesFile;
 use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
-use Illuminate\Support\Facades\Config;
 
 class HandleExcelInput extends Controller
 {

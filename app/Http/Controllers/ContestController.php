@@ -40,7 +40,7 @@ class ContestController extends Controller
         //make sure the stage matches current league stage
         $c=config('leagueSettings.currentStage');
         if($c!=$data['stage'])
-        abort(422,"wrong stage..Current stage: $c , requested stage: "
+        abort(422,"wrong stage..Current stage: $c , you requested stage: "
         .$data['stage']);
         //make sure both teams are in the same stage and not disqualefied yet
         $count=Team::where('disqualified',0)

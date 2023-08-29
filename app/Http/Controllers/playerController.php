@@ -39,7 +39,7 @@ class playerController extends Controller
         ->orderByDesc('goals')
         ->orderByDesc('score')
         ->with('team:id,name')
-        ->limit(15)->get();
+        ->limit(20)->get();
         $players->makeHidden('team_id');
         return $players;
 
@@ -48,8 +48,28 @@ class playerController extends Controller
         $players= Player::select(['id','name','score','team_id'])
         ->orderByDesc('score')
         ->with('team:id,name')
-        ->limit(15)->get();
+        ->limit(20)->get();
         $players->makeHidden('team_id');
         return $players;
     }
+    public function topKeepers(){
+        $players= Player::select(['id','name','saves','team_id'])
+        ->wherePosition(Player::GOAL_KEEPER)
+        ->orderByDesc('saves')
+        ->orderByDesc('score')
+        ->with('team:id,name')
+        ->limit(20)->get();
+        $players->makeHidden('team_id');
+        return $players;
+    }
+    public function topDefenders(){
+        $players= Player::select(['id','name','defences','team_id'])
+        ->orderByDesc('defences')
+        ->orderByDesc('score')
+        ->with('team:id,name')
+        ->limit(20)->get();
+        $players->makeHidden('team_id');
+        return $players;
+    }
+
 }

@@ -45,15 +45,7 @@ class teamController extends Controller
         foreach($slugs as $slug){
             $string = explode(" ", $slug);
             //grade x class y   grade index=>1  class=>3
-            //FIXME:make sure the ordering is right
-            $teams=Team::select([
-                'id',
-                'name',
-                'logo',
-                'wins',
-                'ties',
-                'losses',
-                'points'])
+            $teams=Team::selectViewFields()
                 ->where('grade',$string[1])
                 ->where('class',$string[3])
                 ->where('stage',config('stage.PART ONE'))
@@ -62,6 +54,13 @@ class teamController extends Controller
                 ->get();
             $result[$slug]=$teams;
         }
+        return $result;
+    }
+    public function part1TeamsSortedByBest(){
+        $result=Team::selectViewFields()
+        ->whereStage(config('stage.PART ONE'))
+        ->orderByDesc('points')
+        ->get();
         return $result;
     }
     public function part2Teams(){

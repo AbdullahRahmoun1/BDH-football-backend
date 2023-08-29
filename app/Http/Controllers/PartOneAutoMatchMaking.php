@@ -24,9 +24,14 @@ class PartOneAutoMatchMaking extends Controller
         if(config('leagueSettings.currentStage')!=config('stage.PART ONE'))
         abort(422,'The league has to be in stage ( Part One ) to do this action..League is now in '
         .config('stage.'.config('leagueSettings.currentStage')));
-        //check if the autoMatchMaking havn't been cald before
+        //check if the autoMatchMaking haven't been called before
         if(config('leagueSettings.autoMatchMakingDone',false))
-        abort(400,'AutoMatchMaking is already done..you can\'t do it again!');
+        abort(422,'AutoMatchMaking is already done..you can\'t do it again!');
+        //is there any teams?
+
+        if(Team::count()==0){
+            abort(422,"There is 0 teams.. please insert teams first!");
+        }
         //get all grades
         DB::beginTransaction();
         try{
