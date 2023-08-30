@@ -25,7 +25,7 @@ return new class extends Migration
             $table->tinyInteger('stage')->default(1);
             $table->tinyInteger('firstTeamScore')->default(-1);
             $table->tinyInteger('secondTeamScore')->default(-1);
-            $table->tinyInteger('firstTeamThatScored')->default(-1);
+            $table->boolean('firstTeamScoredFirst')->default(false);
             $table->date('date')->nullable();
             $table->timestamps();
         });

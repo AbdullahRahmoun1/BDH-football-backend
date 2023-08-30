@@ -140,8 +140,8 @@ class ContestController extends Controller
         Contest::determinState($match);
         if ($match->state != config('consts.declared'))
             abort('422', 'match is either not declared yet or finished');
-        $request->validate([
-            'firstTeamThatScored'=>['required','integer','min:1'],
+        $data=$request->validate([
+            'firstTeamScoredFirst'=>['required','boolean'],
             'firstTeamGoals' => ['required', 'array'],
             'secondTeamGoals' => ['required', 'array'],
             'yellowCards' => ['required', 'array'],
@@ -153,9 +153,12 @@ class ContestController extends Controller
         ]);
         DB::beginTransaction();
         try {
+            //set who scored first
+            $match->firstTeamScoredFirst=$data['firstTeamScoredFirst'];
             //goals,redCards,yellow..,defence...........
             $this->addMatchAffectOnPlayers($request, $match);
             //add win,loss,tie to the teams records
+            if($match->league)
             $this->addMatchAffectOnTeams($match);
             //add prediction answers to match
             self::setPredictionAnswers($match);
@@ -168,6 +171,7 @@ class ContestController extends Controller
         }
         DB::commit();
         unset($match->state);
+        self::unsetPredictionAnswers($match);
         $match->save();
         return [
             'message' => 'success'
@@ -430,10 +434,14 @@ class ContestController extends Controller
         $match->answer_winner = $fScore > $sScore ? 1
             : ($fScore == $sScore ? 0 : 2);
         //answer the prediction questions
-        $match->answerOfFirstQuestion = 
-        $match->firstTeamThatScored == $match->firstTeam_id;
+        $match->answerOfFirstQuestion = $match->firstTeamScoredFirst;
 
         $match->answerOfSecondQuestion =
         $fScore + $sScore >5;
+    }
+    private static function unsetPredictionAnswers(&$match) {
+        unset($match->answer_winner);
+        unset($match->answerOfFirstQuestion);
+        unset($match->answerOfSecondQuestion);
     }
 }
