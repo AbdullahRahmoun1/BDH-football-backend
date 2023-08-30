@@ -45,6 +45,7 @@ class PredictionController extends Controller
         }
     }
     public static function applyMatchResultsAffect($match){
+        //must call (set setPredictionAnswers in contest controller to set the match answers before calling this route)
         $predecs=$match->predictions;
         foreach($predecs as $prediction){
             $player=$prediction->user->player;
@@ -52,17 +53,14 @@ class PredictionController extends Controller
             $x=$prediction->double?2:1;
             $right=0;
             $wrong=0;
-            if($prediction->winner==Contest::winner($match))
+            if($prediction->winner==$match->answer_winner)
             $right++; else $wrong++;
-            
-            if(random_int(0,1))//FIXME: change it when the questions are fixed and ready
+            if($match->answerOfFirstQuestion==$prediction->question1)
             $right++; else $wrong++;
-
-            if(random_int(0,1))//FIXME: change it when the questions are fixed and ready
+            if($match->answerOfFirstQuestion==$prediction->question1)
             $right++; else $wrong++;
-
             $total=$right*config('consts.rightPrediction')
-            - $wrong*config("consts.+wrongPrediction");
+            - $wrong*config("consts.wrongPrediction");
             $player->increment('prediction',$total*$x);
         }
     }

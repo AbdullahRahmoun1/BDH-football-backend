@@ -15,7 +15,7 @@ return [
     'defence'=>1,
     'assists'=>1,
     'rightPrediction'=>1,
-    'wrongPrediction'=>-1,
+    'wrongPrediction'=>0,
     'undeclared'=>'undeclared',
     'declared'=>'Declared',
     'finished'=>'Finished',

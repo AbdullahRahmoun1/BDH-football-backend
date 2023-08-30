@@ -141,6 +141,7 @@ class ContestController extends Controller
         if ($match->state != config('consts.declared'))
             abort('422', 'match is either not declared yet or finished');
         $request->validate([
+            'firstTeamThatScored'=>['required','integer','min:1'],
             'firstTeamGoals' => ['required', 'array'],
             'secondTeamGoals' => ['required', 'array'],
             'yellowCards' => ['required', 'array'],
@@ -156,6 +157,8 @@ class ContestController extends Controller
             $this->addMatchAffectOnPlayers($request, $match);
             //add win,loss,tie to the teams records
             $this->addMatchAffectOnTeams($match);
+            //add prediction answers to match
+            self::setPredictionAnswers($match);
             //handle the predictions
             PredictionController::applyMatchResultsAffect($match);
         } catch (Exception $e) {
@@ -344,8 +347,7 @@ class ContestController extends Controller
                 ], ['updated_at' => now()]);
         }
     }
-    public function viewMatchinfo(Request $request, Contest $match)
-    {
+    public function viewMatchinfo(Request $request, Contest $match){
         Contest::determinState($match);
         if ($match->state != config('consts.undeclared')) {
             $userId = request()->user()->id;
@@ -375,9 +377,9 @@ class ContestController extends Controller
         }
         if ($match->state == config('consts.finished')) {
             $match->load([
-                'goals', 'goals.player:id,name',
-                'yellowCards', 'yellowCards.player:id,name',
-                'redCards', 'redCards.player:id,name'
+                'goals', 'goals.player:id,name,team_id',
+                'yellowCards', 'yellowCards.player:id,name,team_id',
+                'redCards', 'redCards.player:id,name,team_id'
             ]);
             $firstIds = Player::where('team_id', $match->firstTeam_id)
                 ->get()->pluck('id')->toArray();
@@ -391,26 +393,18 @@ class ContestController extends Controller
                     !in_array($player->id, $secondIds);
             }
             foreach ($match->yellowCards as $yellow) {
-                $player = $yellow->player;
-                $player->transfered =
+                $yellow->player->transfered =
                     !in_array($player->id, $firstIds)
                     &&
                     !in_array($player->id, $secondIds);
             }
             foreach ($match->redCards as $red) {
-                $player = $red->player;
-                $player->transfered =
+                $red->player->transfered =
                     !in_array($player->id, $firstIds)
                     &&
                     !in_array($player->id, $secondIds);
             }
-            $fScore = $match->firstTeamScore;
-            $sScore = $match->secondTeamScore;
-            $match->answer_winner = $fScore > $sScore ? 1
-                : ($fScore == $sScore ? 0 : 2);
-            //TODO: replace true with the right conditions
-            $match->answerOfFirstQuestion = true;
-            $match->answerOfSecondQuestion = true;
+            self::setPredictionAnswers($match);
         }
 
         $match->firstTeam = teamController::show($match->firstTeam_id, ['id', 'name', 'logo']);
@@ -429,5 +423,17 @@ class ContestController extends Controller
                 . ') doesn\'t belong to any team');
         $call = ($result == 1 ? 'first' : 'second') . 'Team_id';
         return $match->$call;
+    }
+    private static function setPredictionAnswers(&$match) {
+        $fScore = $match->firstTeamScore;
+        $sScore = $match->secondTeamScore;
+        $match->answer_winner = $fScore > $sScore ? 1
+            : ($fScore == $sScore ? 0 : 2);
+        //answer the prediction questions
+        $match->answerOfFirstQuestion = 
+        $match->firstTeamThatScored == $match->firstTeam_id;
+
+        $match->answerOfSecondQuestion =
+        $fScore + $sScore >5;
     }
 }

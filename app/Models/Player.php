@@ -41,5 +41,7 @@ class Player extends Model
     public function setNameAttribute($name){
         $this->attributes['name']=trim($name);
     }
-
+    public function setScoreAttribute($score){
+        $this->attributes['score']=$score<0?0:$score;
+    }
 }

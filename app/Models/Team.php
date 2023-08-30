@@ -55,5 +55,4 @@ class Team extends Model
                 'wins','ties','losses','points','diff'
         ]);
     }
-    
 }
