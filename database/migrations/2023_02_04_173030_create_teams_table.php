@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('name',40)->unique();
             $table->string('grade',5);
             $table->string('class',5);
-            $table->integer('points')->default(0);
             $table->integer('diff')->default(0);
+            $table->integer('points')->default(0);
             $table->tinyInteger('stage')->default(1);
             $table->smallInteger('wins')->default(0);
             $table->smallInteger('ties')->default(0);

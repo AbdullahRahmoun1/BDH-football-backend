@@ -71,5 +71,23 @@ class playerController extends Controller
         $players->makeHidden('team_id');
         return $players;
     }
+    public function topPredictors() {
+        $players= Player::select(['id','name','prediction','team_id'])
+        ->orderByDesc('prediction')
+        ->orderByDesc('score')
+        ->with('team:id,name')
+        ->limit(20)->get();
+        $players->makeHidden('team_id');
+        return $players;
+    }
+    public function topHonor() {
+        $players= Player::select(['id','name','honor','team_id'])
+        ->orderByDesc('honor')
+        ->orderByDesc('score')
+        ->with('team:id,name')
+        ->limit(20)->get();
+        $players->makeHidden('team_id');
+        return $players;
+    }
 
 }

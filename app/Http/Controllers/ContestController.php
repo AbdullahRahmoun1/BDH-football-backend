@@ -42,7 +42,7 @@ class ContestController extends Controller
         if($c!=$data['stage'])
         abort(422,"wrong stage..Current stage: $c , you requested stage: "
         .$data['stage']);
-        //make sure both teams are in the same stage and not disqualefied yet
+        //make sure both teams are in the same stage and not disqualified yet
         $count=Team::where('disqualified',0)
         ->where('stage',$data['stage'])
         ->where(fn($query)=>
@@ -195,14 +195,14 @@ class ContestController extends Controller
                     : ($win == 0 ? config('consts.tie') : config('consts.loss'))
             ]);
     }
-    private function addMatchAffectOnPlayers($request, &$match)
-    {
+    private function addMatchAffectOnPlayers($request, &$match){
         $match->firstTeamScore = $request->firstTeamGoals[0] < 1 ?
             0 : count($request->firstTeamGoals);
         $firstIds = Player::where('team_id', $match->firstTeam_id)
             ->get()->pluck('id')->toArray();
         $secondIds = Player::where('team_id', $match->secondTeam_id)
             ->get()->pluck('id')->toArray();
+        //first team goals (record + affect)
         foreach ($request->firstTeamGoals as $playerId) {
             if ($playerId == null || $playerId <= 0)
                 continue;

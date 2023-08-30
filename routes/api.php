@@ -43,6 +43,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('topKeepers',[playerController::class,'topKeepers']);
     Route::get('topDefenders',[playerController::class,'topDefenders']);
     Route::get('topPlayer',[playerController::class,'topPlayer']);
+    Route::get('topPredictors',[playerController::class,'topPredictors']);
+    Route::get('topHonor',[playerController::class,'topHonor']);
     Route::get('team/{team}',[teamController::class,'show']);
     Route::post('team/{id}',[teamController::class,'uploadTeamLogo']);
     Route::get('part2/teams',[teamController::class,'part2Teams']);

@@ -19,6 +19,9 @@ class Team extends Model
         'created_at',
         'updated_at'
     ];
+    // protected $appends=[
+    //     'points'
+    // ];
     public function players(){
         return $this->hasMany(Player::class); 
     }
@@ -40,11 +43,17 @@ class Team extends Model
     function scopePartOne($query) {
         $query->where('stage',config('stage.PART ONE'));
     }
+    // public function getPointsAttribute() {
+    //     return random_int(0,100);
+    //     return $this->wins*config('consts.win') +
+    //     $this->ties*config('consts.tie') +
+    //     $this->losses*config('consts.loss');
+    // }
     public static function selectViewFields() {
         return Team::select([
                 'id','name','logo',
-                'wins','ties','losses',
-                'points'
+                'wins','ties','losses','points','diff'
         ]);
     }
+    
 }
