@@ -18,6 +18,7 @@ class Contest extends Model
         'place',
         'period',
         'league',
+        'date'
     ];
     protected $hidden = [
         'created_at',
