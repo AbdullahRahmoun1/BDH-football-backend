@@ -238,7 +238,7 @@ class LeagueController extends Controller
             $data[$key]=$value;
         }
         $data=var_export($data,true);
-        file_put_contents(base_path() . '\config\leagueSettings.php',"<?php\n return $data ;");
+        file_put_contents(config_path() . '\leagueSettings.php',"<?php\n return $data ;");
     }
     public static function canProceedTo($stage){
         $current=config('leagueSettings.currentStage');
