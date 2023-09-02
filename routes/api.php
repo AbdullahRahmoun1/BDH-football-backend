@@ -37,6 +37,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('player/{id}',[playerController::class,'show']);
     Route::get('topScorers',[playerController::class,'topScorers']);
     Route::get('topKeepers',[playerController::class,'topKeepers']);
+    Route::get('topAssistants',[playerController::class,'topAssistants']);
     Route::get('topDefenders',[playerController::class,'topDefenders']);
     Route::get('topPlayer',[playerController::class,'topPlayer']);
     Route::get('topPredictors',[playerController::class,'topPredictors']);

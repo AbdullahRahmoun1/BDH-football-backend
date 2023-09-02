@@ -38,7 +38,7 @@ class playerController extends Controller
         $players= Player::select(['id','name','goals','team_id'])
         ->orderByDesc('goals')
         ->orderByDesc('score')
-        ->with('team:id,name')
+        ->with('team:id,name,logo')
         ->limit(20)->get();
         $players->makeHidden('team_id');
         return $players;
@@ -47,7 +47,7 @@ class playerController extends Controller
     public function topPlayer(){
         $players= Player::select(['id','name','score','team_id'])
         ->orderByDesc('score')
-        ->with('team:id,name')
+        ->with('team:id,name,logo')
         ->limit(20)->get();
         $players->makeHidden('team_id');
         return $players;
@@ -57,7 +57,16 @@ class playerController extends Controller
         ->wherePosition(Player::GOAL_KEEPER)
         ->orderByDesc('saves')
         ->orderByDesc('score')
-        ->with('team:id,name')
+        ->with('team:id,name,logo')
+        ->limit(20)->get();
+        $players->makeHidden('team_id');
+        return $players;
+    }
+    public function topAssistants(){
+        $players= Player::select(['id','name','assists','team_id'])
+        ->orderByDesc('assists')
+        ->orderByDesc('score')
+        ->with('team:id,name,logo')
         ->limit(20)->get();
         $players->makeHidden('team_id');
         return $players;
@@ -66,7 +75,7 @@ class playerController extends Controller
         $players= Player::select(['id','name','defences','team_id'])
         ->orderByDesc('defences')
         ->orderByDesc('score')
-        ->with('team:id,name')
+        ->with('team:id,name,logo')
         ->limit(20)->get();
         $players->makeHidden('team_id');
         return $players;
@@ -75,7 +84,7 @@ class playerController extends Controller
         $players= Player::select(['id','name','prediction','team_id'])
         ->orderByDesc('prediction')
         ->orderByDesc('score')
-        ->with('team:id,name')
+        ->with('team:id,name,logo')
         ->limit(20)->get();
         $players->makeHidden('team_id');
         return $players;
@@ -84,7 +93,7 @@ class playerController extends Controller
         $players= Player::select(['id','name','honor','team_id'])
         ->orderByDesc('honor')
         ->orderByDesc('score')
-        ->with('team:id,name')
+        ->with('team:id,name,logo')
         ->limit(20)->get();
         $players->makeHidden('team_id');
         return $players;
