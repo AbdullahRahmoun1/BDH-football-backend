@@ -76,6 +76,7 @@ class LeagueController extends Controller
         return [
             'message'=>'League restarted successfully :)'
         ];
+        //TODO: reset all fields (some are not reset)
     }
     public function part1(){
         $this->canProceedTo(config('stage.PART ONE'));
@@ -238,9 +239,7 @@ class LeagueController extends Controller
             $data[$key]=$value;
         }
         $data=var_export($data,true);
-        // unlink(config_path() . '\leagueSettings.php');
-        $s= file_put_contents(config_path() . '/leagueSettings.php',"<?php\n return $data ;");
-        // abort(200,$s);
+        file_put_contents(config_path() . '/leagueSettings.php',"<?php\n return $data ;");
     }
     public static function canProceedTo($stage){
         $current=config('leagueSettings.currentStage');

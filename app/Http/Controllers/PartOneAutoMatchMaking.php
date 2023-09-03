@@ -79,7 +79,7 @@ class PartOneAutoMatchMaking extends Controller
         DB::commit();
         LeagueController::updateInSettingsFile(['autoMatchMakingDone'=>true]);
         return [
-            'message'=>'Success!, '.$counter.'matches created',
+            'message'=>'Success!, '.$counter.' Matches created',
             'matchesCount'=>$counter,
         ];
     }
