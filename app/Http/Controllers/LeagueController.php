@@ -239,6 +239,7 @@ class LeagueController extends Controller
         }
         $data=var_export($data,true);
         abort(200,config_path());
+        unlink(config_path() . '\leagueSettings.php');
         file_put_contents(config_path() . '\leagueSettings.php',"<?php\n return $data ;");
     }
     public static function canProceedTo($stage){
