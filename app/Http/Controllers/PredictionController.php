@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Contest;
 use App\Models\Prediction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Database\QueryException;
 
 class PredictionController extends Controller
@@ -26,8 +27,12 @@ class PredictionController extends Controller
         $user=$request->user();
         //FIXME: REMOVE THE IF(IS A PLAYER) IF YOU WANT ANY BODY TO PREDICT
         //make sure this user is a player
-        if($user->player==null){
-            abort(400,'Only players can post predictions');
+        // if($user->player==null){
+        //     abort(400,'Only players can post predictions.');
+        // }
+        //is voting closed for this prediction?
+        if(!self::isVotingAvailable($match)){
+            abort(400,'Voting ends at 07:00 AM on match day.');
         }
         try{
             $body['user_id']=$user->id;
@@ -63,6 +68,11 @@ class PredictionController extends Controller
             - $wrong*config("consts.wrongPrediction");
             $player->increment('prediction',$total*$x);
         }
+    }
+    public static function isVotingAvailable($match){
+        $endDateTime=Carbon::parse($match->date)->setTime(7, 0, 0);
+        $currentTime=now();
+        return $currentTime<$endDateTime;
     }
 }
 

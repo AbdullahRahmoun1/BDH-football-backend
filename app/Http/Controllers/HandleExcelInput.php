@@ -52,8 +52,8 @@ class HandleExcelInput extends Controller
         foreach ($reader->getSheetIterator() as $sheet) {
             if(count($errors)!=0)break;
             foreach ($sheet->getRowIterator() as $row) {
-                if($rowI!=1){
-                    $cells=$row->getCells();
+                $cells=$row->getCells();
+                if($rowI!=1 && count($cells)!=0){
                     //make sure cells are all filled
                     if(self::rowIsGood($cells)){
                     $team=self::insertOrDuplicateError(fn()=>
@@ -69,7 +69,7 @@ class HandleExcelInput extends Controller
                             ,'Account already exists. row = '.$rowI,$errors,true)
                         ,$dbAccounts);
                         //accounts are created !!
-                        //now lets create the player records if no errors accourd yet..
+                        //now lets create the player records if no errors found yet..
                             if(count($errors)==0){
                                 self::insertOrDuplicateError(fn()=>
                                 Player::insert(self::extractPlayersInfo($cells,$teamId,$dbIds))
@@ -77,9 +77,9 @@ class HandleExcelInput extends Controller
                             }
                         
                     }
-                    //now create the players recordes and create a password for them
+                    //now create the players records and create a password for them
                     }else {
-                        //if not good then ther is an error (empty fields mainly)
+                        //if not good then their is an error (empty fields mainly)
                         if(count($cells)!=0)
                         $errors[]='check for empty fields in row '.$rowI;
                     }
@@ -121,20 +121,27 @@ class HandleExcelInput extends Controller
                 ->where('stage',config('stage.PART ONE'))
                 ->count();
                 if($count!=5 && $count!=6){
-                    $errors[]="grade $grade class $class doesn't have enogh teams. it has $count teams..should be 5 or 6";
+                    $errors[]="grade $grade class $class doesn't have enough teams. it has $count teams..should be 5 or 6";
                 }
             }
         }  
     }
     private function rowIsGood(&$cells){
-        $result=true;
         //remove all empty cells
         foreach($cells as $key=>$cell){
             if($cell->getValue()=='')
                 unset($cells[$key]);
         }
-        if(count($cells)<9)$result=false;
-        return $result;
+        if(count($cells)<=0)
+        return false;
+        //check that important fields are filled
+        $i=4;
+        do{
+            if(!isset($cells[$i])){
+                return false;
+            }
+        }while(--$i>=0);
+        return true;
     }
     private function extractTeamInfo($cells){
         $grade=$cells[0]->getValue();

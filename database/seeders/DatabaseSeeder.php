@@ -22,17 +22,19 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $user=User::create(['userName'=>'alaa','password'=>12345]);
+        $user=User::create(['userName'=>'BDH_Admin','password'=>'1v4YuY9p987B']);
+        $user->owner_type=config('consts.admin');
+        $user->save();
+        $user=User::create(['userName'=>'BDH_Admin_2','password'=>'6X1o0uvciO17']);
+        $user->owner_type=config('consts.admin');
+        $user->save();
+        $user=User::create(['userName'=>'BDH_Admin_3','password'=>'1oijY6H5Xu35']);
         $user->owner_type=config('consts.admin');
         $user->save();
         LeagueController::updateInSettingsFile([
             'currentStage' => 0,
             'autoMatchMakingDone' => false
         ]);
-        // Player::factory(30)->create();
-        // Contest::factory(10)->create();
-        // RedCard::factory(10)->create();
-        // YellowCard::factory(10)->create();
     }
 }
 

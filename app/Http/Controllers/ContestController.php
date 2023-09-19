@@ -351,7 +351,7 @@ class ContestController extends Controller
                 ], ['updated_at' => now()]);
         }
     }
-    public function viewMatchinfo(Request $request, Contest $match){
+    public function viewMatchinfo(Contest $match){
         Contest::determinState($match);
         if ($match->state != config('consts.undeclared')) {
             $userId = request()->user()->id;
@@ -362,6 +362,8 @@ class ContestController extends Controller
             $match->userPrediction = $pred;
         }
         if ($match->state == config('consts.declared')) {
+            //is voting available?
+            $match->isVotingAvailable=PredictionController::isVotingAvailable($match);
             $match->winnerIs0 = 0;
             $match->winnerIs1 = 0;
             $match->winnerIs2 = 0;

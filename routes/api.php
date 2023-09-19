@@ -1,5 +1,4 @@
 <?php
-
 use App\Http\Controllers\ContestController;
 use App\Http\Controllers\HandleExcelInput;
 use App\Http\Controllers\LeagueController;
@@ -35,6 +34,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/self',[userController::class,'self']);
     //view players
     Route::get('player/{id}',[playerController::class,'show']);
+    Route::get('playersDashboard',[playerController::class,'playersDashboard']);
     Route::get('topScorers',[playerController::class,'topScorers']);
     Route::get('topKeepers',[playerController::class,'topKeepers']);
     Route::get('topAssistants',[playerController::class,'topAssistants']);
