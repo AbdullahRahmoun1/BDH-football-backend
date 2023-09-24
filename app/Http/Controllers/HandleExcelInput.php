@@ -21,6 +21,7 @@ class HandleExcelInput extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    public $row=0;
     public function __invoke(Request $request){
         //check if the league is in part one
         if(config('leagueSettings.currentStage')!=config('stage.PART ONE'))
@@ -52,6 +53,7 @@ class HandleExcelInput extends Controller
         foreach ($reader->getSheetIterator() as $sheet) {
             if(count($errors)!=0)break;
             foreach ($sheet->getRowIterator() as $row) {
+                $this->row=$rowI;
                 $cells=$row->getCells();
                 if($rowI!=1 && count($cells)!=0){
                     //make sure cells are all filled
@@ -197,8 +199,8 @@ class HandleExcelInput extends Controller
             $errorCode=$e->errorInfo[1];
             if($errorCode==1062){
                 // we have a duplicate entry problem
-                $errors[]='fetal error ( '.$msg.' )'.($withDetails?'___ details: '.$e->errorInfo[2]:'');
-            }else {
+                abort(400,'fetal error ( '.$msg.' )'.($withDetails?'___ details: '.$e->errorInfo[2]:''));
+            }else { 
                 $errors[]=$e->errorInfo[2];
             }
         }
